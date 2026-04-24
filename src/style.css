@@ -1,0 +1,997 @@
+* {
+  box-sizing: border-box;
+}
+
+/* --- CURSOR RASTRO DE TINTA --- */
+#cursor-tinta {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none; /* Deixa o utilizador clicar nos botões que estão por baixo */
+  z-index: 99999; /* Fica acima de TUDO no site */
+}
+
+/* Esconder o cursor padrão em todo o lado */
+body,
+a,
+button,
+input,
+select,
+textarea,
+.img-portfolio,
+.btn-upload {
+  cursor: none !important;
+}
+
+/* --- DESATIVAR EM TELEMÓVEIS (onde não há rato) --- */
+@media (pointer: coarse) {
+  #cursor-tinta {
+    display: none !important;
+  }
+  body,
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  .img-portfolio,
+  .btn-upload {
+    cursor: auto !important; /* Volta a ter o comportamento normal no dedo */
+  }
+}
+
+/* Atualização do body */
+body {
+  margin: 0;
+  background-color: #050505;
+  color: white;
+  font-family: "Darker Grotesque", sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  overflow-x: hidden;
+}
+
+/* O palco 3D continua igual */
+#cenario3d {
+  position: fixed;
+  top: 0;
+  left: 0;
+  outline: none;
+  z-index: -1;
+}
+
+/* Atualização do Painel */
+.painel {
+  min-height: 100vh; /* Para navegadores antigos */
+  min-height: 100dvh; /* NOVO: Medida dinâmica perfeita para telemóveis */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 0 20px; /* NOVO: Dá uma margem para o texto não colar nas bordas do telemóvel */
+}
+
+/* --- CABEÇALHO (HEADER) --- */
+.cabecalho {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 30px 50px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 10;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 12px;
+  transition: transform 0.3s ease-in-out;
+  background-color: #050505cc;
+}
+
+.cabecalho.escondido {
+  transform: translateY(-100%);
+}
+
+.logo-svg {
+  height: 64px;
+  width: auto;
+  display: block;
+}
+
+.navegacao a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  margin-left: 30px;
+  transition: opacity 0.3s ease;
+}
+
+.navegacao a:hover {
+  opacity: 0.5;
+}
+
+.btn-orcamento {
+  color: white !important;
+  background-color: #ff2422e6;
+  padding: 20px 40px;
+  border-radius: 4px;
+}
+
+.btn-orcamento:hover {
+  background-color: #ff2422;
+  opacity: 1 !important;
+}
+
+/* --- MENU HAMBURGER --- */
+.menu-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 20;
+}
+
+.menu-hamburger .linha {
+  width: 30px;
+  height: 2px;
+  background-color: white;
+  transition:
+    transform 0.3s,
+    opacity 0.3s;
+}
+
+/* --- SECÇÃO HERO --- */
+.hero {
+  position: relative;
+  width: 100%;
+}
+
+.centro-hero {
+  position: absolute; /* Para ficar fixo no meio, atrás/junto ao 3D */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1; /* Podes mudar para um número negativo se quiseres que o 3D fique por cima das letras! */
+}
+
+.titulo-gigante {
+  font-size: 16vw; /* Bem gigante, quase a tocar nas bordas */
+  margin: 0;
+  line-height: 0.8;
+  font-weight: 800;
+  text-align: center;
+  opacity: 0.9;
+}
+
+.texto-canto {
+  position: absolute;
+  z-index: 5; /* Fica acima do título gigante e do 3D */
+  font-size: 16px;
+  letter-spacing: 1px;
+  line-height: 1.4;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.superior-direito {
+  top: 260px; /* Damos um espaço do topo para não bater no teu cabeçalho */
+  right: 50px; /* Colado à direita */
+  text-align: left;
+  max-width: 300px; /* Impede que fique numa linha gigante */
+}
+
+.inferior-esquerdo {
+  bottom: 50px; /* Colado ao fundo */
+  left: 50px; /* Colado à esquerda */
+  font-size: 3vw; /* Este texto da referência é um pouco maior */
+  text-align: left;
+  line-height: 1.1;
+}
+
+/* --- NOVA SECÇÃO: QUEM SOU EU --- */
+.sobre-container {
+  width: 100%;
+  position: relative;
+  z-index: 2; /* Garante que o texto fica à frente do 3D */
+  padding: 50px 0 100px 0;
+}
+
+/* Cada bloco ocupa a altura do ecrã para dar tempo ao scroll */
+.sobre-bloco {
+  min-height: 100vh;
+  display: flex;
+  align-items: center; /* Centra verticalmente */
+  padding: 0 10%;
+  gap: 80px; /* Espaço entre texto e imagem */
+}
+
+/* O Zigue-Zague */
+.parte-1 {
+  justify-content: flex-start;
+} /* Texto na esquerda */
+.parte-2 {
+  justify-content: flex-end;
+  text-align: right;
+} /* Texto na direita */
+.parte-3 {
+  justify-content: space-between;
+} /* Imagem na esquerda, texto na direita */
+
+.sobre-texto {
+  max-width: 500px; /* Limita a largura do texto para ficar elegante */
+}
+
+.sobre-texto p {
+  font-size: 1.6rem;
+  line-height: 1.8;
+  color: #ccc;
+}
+
+/* O estado inicial dos elementos antes da animação */
+.animar-scroll {
+  opacity: 0; /* Invisível */
+  transform: translateY(80px); /* Empurrado 80px para baixo */
+}
+
+/* Estilo das imagens */
+.foto-sobre {
+  width: 600px;
+  max-width: 100%;
+  border-radius: 5px;
+}
+
+/* --- SECÇÃO: DIFERENCIAIS (Sticky) --- */
+.secao-diferenciais {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  max-width: 100vw;
+  background-color: #0c0c0c;
+  overflow-x: clip;
+}
+
+.fundo-sticky {
+  position: sticky;
+  top: 0;
+  width: 50%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.img-diferencial {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
+  filter: grayscale(20%);
+}
+
+.img-diferencial.ativa {
+  opacity: 1;
+}
+
+.textos-deslizantes {
+  position: relative;
+  z-index: 10; /* Texto por cima da imagem */
+  width: 50%; /* Ocupa metade da tela */
+  margin-left: 50%; /* Empurra para o lado direito */
+  margin-top: -100vh; /* Puxa o texto para cima da primeira imagem colada */
+}
+
+.bloco-dif {
+  height: 100vh; /* Cada texto ocupa uma tela inteira, dando tempo de ler */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 10%;
+}
+
+.bloco-dif h2 {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.bloco-dif p {
+  font-size: 1.6rem;
+  line-height: 1.8;
+  color: #ddd;
+}
+
+/* --- SECÇÃO: PORTFÓLIO --- */
+.secao-portfolio {
+  position: relative;
+  z-index: 5;
+  background-color: #050505;
+  overflow: hidden;
+  min-height: 100vh; /* Ocupa 100% da altura do ecrã */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Centra o conteúdo na vertical */
+  padding: 0; /* Removemos o padding de 100px que tínhamos antes */
+}
+
+.portfolio-cabecalho {
+  text-align: center;
+  padding: 0 20px;
+  margin-bottom: 6vh;
+}
+
+.titulo-secao {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.portfolio-cabecalho p {
+  color: #ccc;
+  font-size: 1.6rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* O Carrossel Animado */
+.carrossel-infinito {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap; /* Impede as fotos de caírem para a linha de baixo */
+}
+
+.carrossel-pista {
+  display: flex;
+  width: max-content; /* A largura adapta-se à quantidade de fotos que colocares */
+  /* A animação dura 20 segundos, linear (sem acelerar ou travar), infinita */
+  animation: rolar-infinito 30s linear infinite;
+}
+
+/* Pausa a animação quando o utilizador passa o rato por cima! (UX Premium) */
+.carrossel-infinito:hover .carrossel-pista {
+  animation-play-state: paused;
+}
+
+/* As Fotos do Portfólio */
+.img-portfolio {
+  height: 500px; /* Altura padrão das fotos */
+  width: auto;
+  margin: 0 15px; /* Espaço entre as fotos */
+  border-radius: 8px;
+  cursor: pointer; /* Muda o rato para uma mãozinha */
+  transition:
+    transform 0.3s ease,
+    filter 0.3s ease;
+  filter: grayscale(80%); /* Deixa um pouco cinza para elegância */
+}
+
+.img-portfolio:hover {
+  transform: scale(1.05); /* Dá um pequeno zoom ao passar o rato */
+  filter: grayscale(0%); /* Mostra as cores reais */
+}
+
+/* A Regra de Movimento (Keyframes) */
+@keyframes rolar-infinito {
+  0% {
+    transform: translateX(0);
+  }
+  /* Move exatamente metade da pista para a esquerda. Como vamos clonar as fotos no JS, a transição será invisível! */
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* --- LIGHTBOX (A Foto em Ecrã Inteiro) --- */
+.lightbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.95); /* Fundo quase todo preto */
+  z-index: 9999; /* Por cima de ABSOLUTAMENTE tudo */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0; /* Invisível por defeito */
+  pointer-events: none; /* Não deixa clicar quando está invisível */
+  transition: opacity 0.4s ease;
+}
+
+/* Classe ativada pelo JavaScript */
+.lightbox.ativo {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.lightbox img {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 10px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+}
+
+.fechar-lightbox {
+  position: absolute;
+  top: 30px;
+  right: 50px;
+  font-size: 50px;
+  color: white;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.fechar-lightbox:hover {
+  color: #ff3300;
+}
+
+/* --- SECÇÃO: MISSÃO (Text Reveal) --- */
+.secao-missao {
+  min-height: 100vh; /* Ocupa a altura toda do ecrã */
+  background-color: #050505;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 10%;
+  position: relative;
+  z-index: 5;
+}
+
+.texto-revelar {
+  font-size: 3rem; /* Um tamanho bem generoso */
+  line-height: 1.2;
+  text-align: left;
+  font-weight: 600;
+  /* max-width: 1200px; */
+}
+
+/* O estado inicial de cada palavra que o JS vai criar */
+.palavra-revelar {
+  opacity: 0.15; /* Quase invisível (esvaziado) */
+  /* A transição suave no CSS evita que as palavras "pisquem" bruscamente */
+  transition: opacity 0.1s ease;
+}
+
+/* --- SECÇÃO: ESTÚDIO --- */
+.secao-estudio {
+  min-height: 100vh;
+  padding: 80px 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #050505;
+  position: relative;
+  z-index: 5;
+}
+
+/* A Caixa que guarda o slideshow e o texto */
+.box-estudio {
+  display: flex;
+  width: 100%;
+  height: 650px;
+  background-color: #111; /* Um cinza muito escuro para destacar do fundo preto */
+  border-radius: 15px; /* Cantos arredondados */
+  overflow: hidden; /* Garante que a foto respeita os cantos arredondados */
+}
+
+/* O lado do Slideshow (50%) */
+.slideshow-estudio {
+  flex: 1;
+  position: relative;
+  min-height: 500px;
+}
+
+/* As Fotos empilhadas */
+.foto-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0; /* Invisíveis por defeito */
+  transition: opacity 1.5s ease-in-out; /* Transição de Fade muito suave (1.5 segundos) */
+}
+
+/* Apenas a foto com a classe .ativa fica visível */
+.foto-slide.ativa {
+  opacity: 1;
+}
+
+/* O lado do Texto (50%) */
+.texto-estudio {
+  flex: 1;
+  padding: 60px 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.texto-estudio h2 {
+  font-size: 2.5rem;
+  margin-bottom: 30px;
+  text-transform: uppercase;
+}
+
+.texto-estudio p {
+  font-size: 1.6rem;
+  color: white;
+}
+
+/* --- SECÇÃO: ORÇAMENTO (Formulário) --- */
+.secao-orcamento {
+  min-height: 100vh;
+  padding: 100px 20px;
+  background-color: #050505;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: 5;
+}
+
+.orcamento-container-full {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.orcamento-grid {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr 1.2fr;
+  gap: 60px;
+  align-items: start;
+}
+
+.coluna-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.coluna-info {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* Garante que todo o bloco fique empurrado para o topo */
+}
+
+.coluna-info .titulo-secao {
+  font-size: 3.4rem;
+  line-height: 1.2;
+  margin-top: 0; /* A MÁGICA AQUI: Remove a margem invisível do navegador */
+  margin-bottom: 20px;
+  align-self: flex-start;
+}
+
+.coluna-info p {
+  font-size: 1.6rem;
+  margin-top: 0; /* Prevenção extra para remover qualquer margem padrão do parágrafo */
+  align-self: flex-start;
+}
+
+.grupo-input {
+  margin-bottom: 40px;
+  position: relative;
+}
+
+/* --- ESTILO DOS CAMPOS (Inputs e Textarea) --- */
+.input-linha {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #444;
+  color: white;
+  font-size: 1.2rem;
+  padding: 10px 0;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.3s ease;
+  border-radius: 0;
+}
+
+.textarea-linha {
+  resize: vertical;
+}
+
+/* --- LABELS E TEXTOS FLUTUANTES --- */
+.label-flutuante {
+  position: absolute;
+  top: 10px;
+  left: 0;
+  font-size: 1.2rem;
+  color: #c5c5c5;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+.input-linha:focus ~ .label-flutuante,
+.input-linha:not(:placeholder-shown) ~ .label-flutuante,
+.textarea-linha:focus ~ .label-flutuante,
+.textarea-linha:not(:placeholder-shown) ~ .label-flutuante {
+  top: -20px;
+  font-size: 0.85rem;
+  color: #fff;
+}
+
+/* NOVO: A Label Fixa para os Selects (Dropdowns) */
+.label-fixa {
+  position: absolute;
+  top: -20px;
+  left: 0;
+  font-size: 0.85rem;
+  color: #c5c5c5;
+}
+
+/* --- ESTADOS DE ERRO --- */
+.mensagem-erro-campo {
+  position: absolute;
+  bottom: -20px;
+  left: 0;
+  color: #ff3300;
+  font-size: 0.8rem;
+  opacity: 0;
+  transform: translateY(-5px);
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.input-linha.erro-validacao {
+  border-bottom-color: #ff3300;
+}
+
+.input-linha.erro-validacao ~ .mensagem-erro-campo {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* --- DROPDOWNS (Select) --- */
+select.input-linha {
+  cursor: pointer;
+  appearance: none;
+  color: #888;
+}
+
+select.input-linha option {
+  background-color: #111;
+  color: white;
+}
+
+select.input-linha:valid {
+  color: white;
+}
+
+/* --- BOTÃO DE UPLOAD (Anexar) --- */
+.escondido {
+  display: none !important;
+}
+
+.btn-upload {
+  display: inline-block;
+  color: #c5c5c5;
+  font-size: 1rem;
+  cursor: pointer;
+  border: 1px dashed #444;
+  padding: 15px 20px;
+  width: 100%;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.btn-upload:hover {
+  border-color: #fff;
+  color: #fff;
+}
+
+/* --- BOTÃO DE ENVIAR --- */
+.btn-enviar {
+  background-color: rgba(255, 36, 34, 0.9);
+  color: white;
+  border: none;
+  padding: 20px 40px;
+  font-size: 1rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  cursor: pointer;
+  width: 100%;
+  border-radius: 4px;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+  margin-top: 20px;
+}
+
+.btn-enviar:hover {
+  background-color: #ff2422;
+  color: white;
+}
+
+/* --- MENSAGEM DE SUCESSO --- */
+.mensagem-sucesso {
+  text-align: center;
+  padding: 100px 20px;
+  border: 1px solid #444;
+  border-radius: 10px;
+  margin-top: 30px;
+  animation: fadeIn 0.5s ease forwards; /* 'forwards' mantém o estado final da animação */
+}
+
+.mensagem-sucesso h3 {
+  color: #4caf50;
+  font-size: 2rem;
+  margin-bottom: 15px;
+}
+
+/* NOVO: A animação que faltava para a mensagem de sucesso! */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- SECÇÃO: RODAPÉ (Footer) --- */
+.secao-rodape {
+  height: 80vh;
+  background-color: #000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  z-index: 5;
+  padding: 40px 20px 20px 20px;
+  overflow: hidden; /* MUITO IMPORTANTE: Impede que o efeito de cor vaze para fora do site */
+}
+
+.conteudo-rodape {
+  position: relative;
+  z-index: 2;
+}
+
+/* O Logótipo Gigante */
+.logo-gigante {
+  width: 10vw;
+  max-width: 800px; /* Mas não cresce infinitamente em monitores ultra-largos */
+  margin-bottom: 8vh; /* Espaço dinâmico para as redes sociais */
+  opacity: 0.9;
+}
+
+/* Redes Sociais */
+.rodape-sociais {
+  display: flex;
+  gap: 50px; /* Distância entre os links */
+  margin-bottom: 6vh;
+}
+
+.rodape-sociais a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  font-weight: bold;
+  transition: opacity 0.3s ease;
+}
+
+.rodape-sociais a:hover {
+  opacity: 0.4; /* Fica meio transparente ao passar o rato */
+}
+
+/* Contactos Side-by-Side */
+.rodape-contato {
+  display: flex;
+  gap: 100px; /* Distância grande entre endereço, telefone e email */
+}
+
+.contato-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.contato-rotulo {
+  font-size: 0.8rem;
+  color: #555; /* Cinzento bem escuro para o rótulo */
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.contato-item p,
+.contato-link {
+  color: #ccc;
+  font-size: 1.2rem;
+  text-decoration: none;
+  margin: 0;
+  transition: color 0.3s ease;
+}
+
+.contato-link:hover {
+  color: #fff; /* Fica branco puro ao passar o rato */
+}
+
+/* --- AJUSTE PARA TELEMÓVEIS --- */
+@media (max-width: 1550px) and (min-width: 769px) {
+  .superior-direito {
+    top: 200px;
+    right: 20px; /* Menos margem no telemóvel */
+    max-width: 300px; /* Mais estreito */
+  }
+}
+
+@media (max-width: 1100px) {
+  .orcamento-grid {
+    grid-template-columns: 1fr; /* Passa tudo para 1 única coluna */
+    gap: 40px;
+  }
+
+  .coluna-info {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .orcamento-container-full {
+    max-width: 600px; /* Reduz a largura para ficar elegante no mobile */
+  }
+}
+
+@media (max-width: 768px) {
+  .cabecalho {
+    padding: 20px;
+  }
+
+  .menu-hamburger {
+    display: flex;
+  }
+
+  .navegacao {
+    position: fixed; /* Fixo ao ecrã */
+    top: 0;
+    right: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #050505; /* Fundo escuro sólido */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 40px; /* Mais espaço entre os links */
+
+    /* Move o menu 100% para a direita (fica fora do ecrã) */
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+  }
+
+  /* 3. A classe que o JavaScript vai usar para mostrar o menu */
+  .navegacao.ativa {
+    transform: translateX(0); /* Traz o menu de volta à posição original (0) */
+  }
+
+  .navegacao a {
+    margin: 0;
+    font-size: 24px; /* Letras maiores para ser fácil clicar com o dedo */
+  }
+
+  /* 4. Animação bónus: Transforma as 3 linhas num "X" quando o menu está aberto */
+  .menu-hamburger.ativo .linha:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+  }
+  .menu-hamburger.ativo .linha:nth-child(2) {
+    opacity: 0; /* Esconde a linha do meio */
+  }
+  .menu-hamburger.ativo .linha:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+  }
+
+  .titulo-gigante {
+    font-size: 25vw; /* Continua gigante no mobile */
+  }
+
+  .superior-direito {
+    top: 140px;
+    right: 20px; /* Menos margem no telemóvel */
+    max-width: 150px; /* Mais estreito */
+  }
+
+  .inferior-esquerdo {
+    bottom: 30px;
+    left: 20px; /* Menos margem no telemóvel */
+    font-size: 18px; /* Reduzimos um pouco o tamanho */
+  }
+
+  .sobre-bloco {
+    flex-direction: column !important; /* Força a ficar um em cima do outro */
+    justify-content: center;
+    text-align: center !important;
+    gap: 30px;
+    padding: 0 20px;
+  }
+
+  .fundo-sticky {
+    width: 100%;
+  }
+
+  .img-diferencial {
+    filter: brightness(0.3) grayscale(20%);
+  }
+
+  .textos-deslizantes {
+    width: 100%;
+    margin-left: 0;
+    /* Certifica-te de que o margin-top negativo continua aqui para o texto passar por cima da foto! */
+    margin-top: -100vh;
+  }
+
+  .bloco-dif {
+    padding: 0 20px; /* Reduzi o padding no telemóvel para não apertar muito o texto */
+    text-align: center;
+  }
+
+  .img-portfolio {
+    height: 350px; /* Imagens mais pequenas no mobile */
+    margin: 0 10px;
+  }
+  .fechar-lightbox {
+    top: 15px;
+    right: 25px;
+  }
+
+  .secao-missao {
+    padding: 0 20px;
+  }
+  .texto-revelar {
+    font-size: 1.8rem; /* Reduzimos o tamanho para caber no telemóvel */
+  }
+
+  .secao-estudio {
+    padding: 60px 20px;
+  }
+  .box-estudio {
+    flex-direction: column; /* Coloca a foto em cima e o texto em baixo */
+  }
+  .slideshow-estudio {
+    min-height: 300px; /* Reduz a altura da foto no telemóvel */
+  }
+  .texto-estudio {
+    padding: 40px 30px;
+    text-align: center;
+  }
+
+  .logo-gigante {
+    width: 80vw; /* Fica ainda mais largo no ecrã pequeno */
+    margin-bottom: 60px;
+  }
+
+  .rodape-sociais {
+    gap: 20px;
+    margin-bottom: 60px;
+  }
+
+  .rodape-sociais a {
+    font-size: 1rem;
+  }
+
+  .rodape-contato {
+    flex-direction: column; /* Coloca Endereço, Tel e Email em coluna */
+    gap: 40px;
+  }
+}

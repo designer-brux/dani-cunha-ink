@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dani Cunha Ink</title>
+    <link rel="stylesheet" href="/src/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@300..900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <canvas id="cursor-tinta"></canvas>
+    <canvas id="cenario3d"></canvas>
+
+    <header class="cabecalho" id="meu-cabecalho">
+      <a href="#" class="logo-link">
+        <img src="/logo.svg" alt="Dani Cunha Ink" class="logo-svg" />
+      </a>
+      <button class="menu-hamburger" id="btn-menu">
+        <span class="linha"></span>
+        <span class="linha"></span>
+        <span class="linha"></span>
+      </button>
+
+      <nav class="navegacao" id="menu-navegacao">
+        <a href="#quem-sou">Quem sou eu</a>
+        <a href="#portfolio">Portfólio</a>
+        <a href="#estudio">Estúdio</a>
+        <a href="#orcamento" class="btn-orcamento">Orçamento</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="painel hero">
+        <div class="texto-canto superior-direito">
+          Tatuar não é apenas o que faço,<br />é quem eu sou.
+        </div>
+
+        <div class="texto-canto inferior-esquerdo">
+          ONDE A ARTE<br />VIVE NA PELE
+        </div>
+
+        <div class="centro-hero">
+          <h1 class="titulo-gigante">DANI CUNHA</h1>
+        </div>
+      </section>
+
+      <section id="quem-sou" class="sobre-container">
+        <div class="sobre-bloco parte-1 animar-scroll">
+          <div class="sobre-texto">
+            <h2 class="titulo-secao">Quem é a Dani?</h2>
+            <p>
+              Sempre inquieta e inconformada, foi por meio do desenho e da
+              pintura que Dani conseguiu colocar para fora sua forma especial de
+              ver e sentir o mundo.
+            </p>
+          </div>
+          <img src="public/dani-1.jpeg" alt="Arte da Dani" class="foto-sobre" />
+        </div>
+
+        <div class="sobre-bloco parte-2 animar-scroll">
+          <div class="sobre-texto">
+            <p>
+              Há mais de 10 anos, divide com seus clientes sua paixão,
+              ajudando-os a dar forma para aquilo que eles sentem e veem, sempre
+              com muito respeito, escuta e parceria. Perfeccionista, possui um
+              traço preciso e cuidadoso, além de uma sensibilidade que a permite
+              transitar nos mais diversos estilos de tattoo.
+            </p>
+          </div>
+        </div>
+
+        <div class="sobre-bloco parte-3 animar-scroll">
+          <img
+            src="public/dani-2.jpeg"
+            alt="Tatuagem Dani"
+            class="foto-sobre"
+          />
+          <div class="sobre-texto">
+            <p>
+              Sua originalidade aparece em cada um dos trabalhos que realiza,
+              sem nunca deixar de lado a essência do cliente. Com essa
+              dedicação, Dani se tornou uma das maiores referências em tatuagem
+              no Brasil, tendo sido eleita por diversas vezes uma das 10
+              melhores tatuadoras do País.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="diferenciais" class="secao-diferenciais">
+        <div class="fundo-sticky">
+          <img
+            src="https://images.unsplash.com/photo-1560707303-4e980ce876ad?q=80&w=1000&auto=format&fit=crop"
+            class="img-diferencial ativa"
+            alt="Pesquisa"
+          />
+          <img
+            src="https://images.unsplash.com/photo-1550684376-efcbd6e3f031?q=80&w=1000&auto=format&fit=crop"
+            class="img-diferencial"
+            alt="Anatomia"
+          />
+          <img
+            src="https://images.unsplash.com/photo-1611501275019-9b5cda994e8d?q=80&w=1000&auto=format&fit=crop"
+            class="img-diferencial"
+            alt="Vida longa"
+          />
+        </div>
+
+        <div class="textos-deslizantes">
+          <div class="bloco-dif">
+            <h2>Pesquisa</h2>
+            <p>
+              Antes de realizar a tattoo, é fundamental fazer uma pesquisa
+              cuidadosa tanto sobre a personalidade do cliente quanto sobre o
+              tema escolhido. É essencial escolher elementos e padrões que
+              complementem o tema principal e que estejam em sintonia com o
+              propósito de cada tattoo. A harmonia entre todos esses fatores é
+              essencial para garantir que a tatuagem seja coerente e esteja de
+              acordo com as expectativas do cliente.
+            </p>
+          </div>
+
+          <div class="bloco-dif">
+            <h2>Anatomia</h2>
+            <p>
+              A anatomia é um fator crucial a ser considerado na hora de criar
+              uma tattoo. O artista precisa entender como o design se adaptará à
+              anatomia do cliente, considerando fatores como a forma do corpo, a
+              textura da pele e a localização da tatuagem. Cada pessoa tem uma
+              anatomia única, o que significa que o design de tatuagem que
+              funciona bem para uma pessoa pode não funcionar tão bem para
+              outra.
+            </p>
+          </div>
+
+          <div class="bloco-dif">
+            <h2>Vida longa</h2>
+            <p>
+              Longevidade da tatuagem é algo importante de considerar. O design
+              não deve ser apenas agradável, mas também resistir à ação do
+              tempo. É essencial que a tattoo tenha leitura clara e solidez
+              estrutural, já que o cliente vai viver com ela por toda a vida. A
+              imaginação na criação do design é importante, mas é necessário
+              garantir que ele seja tecnicamente possível para que possa
+              resistir ao desgaste do tempo.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="portfolio" class="secao-portfolio">
+        <div class="portfolio-cabecalho">
+          <h2 class="titulo-secao">Traços eternizados</h2>
+          <p>
+            Geométrico, pontilhismo, aquarela, ornamental, moderno, tradicional,
+            diversos estilos para contar a tua história.
+          </p>
+        </div>
+
+        <div class="carrossel-infinito">
+          <div class="carrossel-pista" id="pista-portfolio">
+            <img src="public/D1.webp" class="img-portfolio" alt="Tattoo 1" />
+            <img src="public/D2.webp" class="img-portfolio" alt="Tattoo 2" />
+            <img src="public/D3.webp" class="img-portfolio" alt="Tattoo 3" />
+            <img src="public/D4.webp" class="img-portfolio" alt="Tattoo 4" />
+            <img src="public/D5.webp" class="img-portfolio" alt="Tattoo 5" />
+            <img src="public/D6.webp" class="img-portfolio" alt="Tattoo 6" />
+            <img src="public/D8.webp" class="img-portfolio" alt="Tattoo 7" />
+            <img src="public/D9.webp" class="img-portfolio" alt="Tattoo 8" />
+            <img src="public/D11.webp" class="img-portfolio" alt="Tattoo 9" />
+          </div>
+        </div>
+      </section>
+
+      <div id="janela-lightbox" class="lightbox">
+        <span class="fechar-lightbox">&times;</span>
+        <img id="img-ampliada" src="" alt="Tattoo Ampliada" />
+      </div>
+
+      <section id="missao" class="secao-missao">
+        <div class="texto-revelar" id="texto-missao">
+          Cada tattoo é mais do que apenas uma imagem gravada na pele – é uma
+          expressão artística personalizada que simboliza a individualidade de
+          cada cliente. É essencial que cada design seja adaptado para se
+          adequar perfeitamente à pessoa que o está recebendo, levando em conta
+          sua personalidade, estilo de vida e anatomia. Por isso, cada tatuagem
+          é única pois cada indivíduo é único, cada projeto será sempre único.
+          Dani costuma dizer que ela não inventa nada, ela só ajuda os clientes
+          a encontrarem onde está perdida a imagem dentro deles.
+        </div>
+      </section>
+
+      <section id="estudio" class="secao-estudio">
+        <div class="box-estudio">
+          <div class="slideshow-estudio">
+            <img
+              src="https://images.unsplash.com/photo-1598371839696-5c5bb00bdc28?q=80&w=800&auto=format&fit=crop"
+              class="foto-slide ativa"
+              alt="Estúdio Foto 1"
+            />
+            <img
+              src="https://images.unsplash.com/photo-1621360841013-c76831f1dbce?q=80&w=800&auto=format&fit=crop"
+              class="foto-slide"
+              alt="Estúdio Foto 2"
+            />
+            <img
+              src="https://images.unsplash.com/photo-1560707303-4e980ce876ad?q=80&w=800&auto=format&fit=crop"
+              class="foto-slide"
+              alt="Estúdio Foto 3"
+            />
+          </div>
+
+          <div class="texto-estudio">
+            <h2>Estúdio Exclusivo</h2>
+            <p>
+              Ambiente acolhedor e confortável no coração de Valinhos/SP,
+              oferecemos um espaço luminoso e tranquilo para sua experiência de
+              tatuagem.
+              <br />
+              Temos rigorosos padrões de higiene, equipamentos de última geração
+              e garantimos segurança e qualidade em cada trabalho.
+              <br />
+              Temos fácil acesso por transporte público e estacionamentos
+              próximos.
+              <br />
+              Venha conhecer nosso espaço e descubra por que somos referência em
+              arte corporal no Brasil.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="orcamento" class="secao-orcamento">
+        <div class="orcamento-container-full">
+          <form id="form-tatuagem" class="orcamento-grid" autocomplete="off">
+            <div class="coluna-form coluna-info">
+              <h2 class="titulo-secao">Vamos criar juntos?</h2>
+              <p>
+                Conta-me a tua ideia. Preenche os dados ao lado e responderei o
+                mais breve possível.
+              </p>
+            </div>
+
+            <div class="coluna-form">
+              <div class="grupo-input">
+                <input
+                  type="text"
+                  id="nome"
+                  name="nome"
+                  class="input-linha"
+                  placeholder=" "
+                  required
+                />
+                <label for="nome" class="label-flutuante"
+                  >Seu Nome Completo *</label
+                >
+                <span class="mensagem-erro-campo"
+                  >Este campo é obrigatório.</span
+                >
+              </div>
+
+              <div class="grupo-input">
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  class="input-linha"
+                  placeholder=" "
+                  required
+                />
+                <label for="email" class="label-flutuante">Seu E-mail *</label>
+                <span class="mensagem-erro-campo">E-mail inválido.</span>
+              </div>
+
+              <div class="grupo-input">
+                <input
+                  type="tel"
+                  id="telefone"
+                  name="telefone"
+                  class="input-linha"
+                  placeholder=" "
+                  required
+                />
+                <label for="telefone" class="label-flutuante"
+                  >Seu WhatsApp *</label
+                >
+                <span class="mensagem-erro-campo">Obrigatório.</span>
+              </div>
+
+              <div class="grupo-input">
+                <input
+                  type="text"
+                  id="local"
+                  name="local"
+                  class="input-linha"
+                  placeholder=" "
+                  required
+                />
+                <label for="local" class="label-flutuante"
+                  >Local do corpo *</label
+                >
+                <span class="mensagem-erro-campo">Obrigatório.</span>
+              </div>
+
+              <div class="grupo-input">
+                <textarea
+                  id="descricao"
+                  name="descricao"
+                  class="input-linha textarea-linha"
+                  placeholder=" "
+                  rows="2"
+                  required
+                ></textarea>
+                <label for="descricao" class="label-flutuante"
+                  >Descrição da ideia *</label
+                >
+                <span class="mensagem-erro-campo">Obrigatório.</span>
+              </div>
+            </div>
+
+            <div class="coluna-form">
+              <div class="grupo-input">
+                <select id="data" name="data" class="input-linha" required>
+                  <option value="" disabled selected></option>
+                  <option value="breve">O mais breve possível</option>
+                  <option value="3meses">Nos próximos 3 meses</option>
+                  <option value="sem_data">Sem data prevista</option>
+                </select>
+                <label class="label-fixa">Quando pretende fazer? *</label>
+              </div>
+
+              <div class="grupo-input">
+                <select
+                  id="orcamento-valor"
+                  name="orcamento-valor"
+                  class="input-linha"
+                  required
+                >
+                  <option value="" disabled selected></option>
+                  <option value="500-1000">R$500 - R$1000</option>
+                  <option value="1001-2999">R$1001 - R$2999</option>
+                  <option value="3000-5000">R$3000 - R$5000</option>
+                  <option value="acima-5000">Acima de R$5000</option>
+                </select>
+                <label class="label-fixa">Qual seu orçamento? *</label>
+              </div>
+
+              <div class="grupo-input input-arquivo">
+                <input
+                  type="file"
+                  id="imagem"
+                  name="imagem"
+                  accept="image/*"
+                  class="escondido"
+                />
+                <label for="imagem" class="btn-upload">
+                  <span id="nome-arquivo">+ Anexar Referência</span>
+                </label>
+              </div>
+
+              <button type="submit" class="btn-enviar">Enviar Orçamento</button>
+            </div>
+          </form>
+
+          <div id="mensagem-sucesso" class="mensagem-sucesso escondido">
+            <h3>Enviado com sucesso!</h3>
+            <p>A Dani entrará em contato em breve.</p>
+          </div>
+        </div>
+      </section>
+
+      <footer class="secao-rodape">
+        <div class="rodape-logo conteudo-rodape">
+          <img src="/logo.svg" alt="Dani Cunha Ink" class="logo-gigante" />
+        </div>
+
+        <nav class="rodape-sociais conteudo-rodape">
+          <a href="https://instagram.com" target="_blank">Instagram</a>
+          <a href="https://tiktok.com" target="_blank">TikTok</a>
+          <a href="https://youtube.com" target="_blank">YouTube</a>
+        </nav>
+
+        <div class="rodape-contato conteudo-rodape">
+          <div class="contato-item">
+            <span class="contato-rotulo">Endereço</span>
+            <p>
+              R. Luís Spiandorelli Neto, 30 - Jardim Paiquere <br />
+              Torre Jequitibá - Sala 808 | Valinhos - SP | 13271-570
+            </p>
+          </div>
+
+          <div class="contato-item">
+            <span class="contato-rotulo">WhatsApp</span>
+            <a href="tel:+5511987902213" class="contato-link"
+              >(11) 9 8790-2213</a
+            >
+          </div>
+
+          <div class="contato-item">
+            <span class="contato-rotulo">E-mail</span>
+            <a href="mailto:contato@danicunha.ink" class="contato-link"
+              >contato@danicunha.ink</a
+            >
+          </div>
+        </div>
+      </footer>
+    </main>
+
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>
