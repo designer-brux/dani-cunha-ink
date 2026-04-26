@@ -234,7 +234,7 @@ body {
 
 .sobre-texto p {
   font-size: 1.6rem;
-  line-height: 1.8;
+  line-height: 1.2;
   color: #ccc;
 }
 
@@ -310,7 +310,7 @@ body {
 
 .bloco-dif p {
   font-size: 1.6rem;
-  line-height: 1.8;
+  line-height: 1.2;
   color: #ddd;
 }
 
@@ -482,7 +482,7 @@ body {
 .box-estudio {
   display: flex;
   width: 100%;
-  height: 650px;
+  min-height: 650px;
   background-color: #111; /* Um cinza muito escuro para destacar do fundo preto */
   border-radius: 15px; /* Cantos arredondados */
   overflow: hidden; /* Garante que a foto respeita os cantos arredondados */
@@ -529,6 +529,7 @@ body {
 
 .texto-estudio p {
   font-size: 1.6rem;
+  line-height: 1.2;
   color: white;
 }
 
@@ -579,6 +580,7 @@ body {
 
 .coluna-info p {
   font-size: 1.6rem;
+  line-height: 1.2;
   margin-top: 0; /* Prevenção extra para remover qualquer margem padrão do parágrafo */
   align-self: flex-start;
 }
@@ -810,15 +812,15 @@ select.input-linha:valid {
 }
 
 .contato-rotulo {
-  font-size: 0.8rem;
-  color: #555; /* Cinzento bem escuro para o rótulo */
+  font-size: 1.2rem;
+  color: #c6c6c6; /* Cinzento bem escuro para o rótulo */
   text-transform: uppercase;
   letter-spacing: 2px;
 }
 
 .contato-item p,
 .contato-link {
-  color: #ccc;
+  color: #ffffff;
   font-size: 1.2rem;
   text-decoration: none;
   margin: 0;
@@ -827,6 +829,36 @@ select.input-linha:valid {
 
 .contato-link:hover {
   color: #fff; /* Fica branco puro ao passar o rato */
+}
+
+.rodape-inferior {
+  margin-top: 8vh; /* Espaço em relação aos contatos */
+  border-top: 1px solid #222; /* Uma linha bem subtil para separar */
+  padding-top: 30px;
+  padding-bottom: 20px;
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  justify-content: space-between; /* Texto na esquerda, dev na direita no desktop */
+  align-items: center;
+  font-size: 0.9rem;
+  color: #c6c6c6;
+  letter-spacing: 1px;
+}
+
+.rodape-inferior p {
+  margin: 5px 0;
+}
+
+.dev-link {
+  color: #888;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.dev-link:hover {
+  color: #ff2422; /* Cor de destaque do seu site ao passar o rato */
 }
 
 /* --- AJUSTE PARA TELEMÓVEIS --- */
@@ -963,21 +995,30 @@ select.input-linha:valid {
   }
 
   .secao-estudio {
+    height: auto;
     padding: 60px 20px;
   }
+
   .box-estudio {
-    flex-direction: column; /* Coloca a foto em cima e o texto em baixo */
+    flex-direction: column;
+    height: auto;
   }
+
   .slideshow-estudio {
-    min-height: 300px; /* Reduz a altura da foto no telemóvel */
+    min-height: 320px; /* Reduz a altura da foto no telemóvel */
   }
+
   .texto-estudio {
     padding: 40px 30px;
     text-align: center;
   }
 
+  .secao-rodape {
+    height: auto;
+  }
+
   .logo-gigante {
-    width: 80vw; /* Fica ainda mais largo no ecrã pequeno */
+    width: 40vw;
     margin-bottom: 60px;
   }
 
@@ -993,5 +1034,13 @@ select.input-linha:valid {
   .rodape-contato {
     flex-direction: column; /* Coloca Endereço, Tel e Email em coluna */
     gap: 40px;
+  }
+
+  .rodape-inferior {
+    flex-direction: column; /* No mobile, um em cima do outro */
+    justify-content: center;
+    gap: 10px;
+    margin-top: 50px;
+    padding-bottom: 40px; /* Espaço extra no fundo do site */
   }
 }

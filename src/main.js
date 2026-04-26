@@ -54,10 +54,10 @@ carregador.load("/modelo.glb", function (gltf) {
 
   // Dependendo de quem fez o modelo, ele pode vir gigante ou minúsculo.
   // Podes alterar estes números para (0.5, 0.5, 0.5) para encolher, ou (2, 2, 2) para aumentar.
-  modeloArte.scale.set(10, 10, 10);
+  modeloArte.scale.set(2, 2, 2);
 
   // Centrar o modelo no ecrã (opcional, mas recomendado)
-  modeloArte.position.set(-15, 0, 0);
+  modeloArte.position.set(0, 0, 0);
 
   // Adiciona o modelo carregado dentro do nosso grupo invisível
   grupoModelo.add(modeloArte);
@@ -456,4 +456,10 @@ if (canvasTinta && window.matchMedia("(pointer: fine)").matches) {
   }
 
   animarTinta();
+}
+
+// --- ATUALIZAÇÃO AUTOMÁTICA DO ANO ---
+const spanAno = document.getElementById("ano-atual");
+if (spanAno) {
+  spanAno.textContent = new Date().getFullYear();
 }
