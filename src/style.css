@@ -1276,12 +1276,47 @@ select.input-linha:valid {
     font-size: 18px; /* Reduzimos um pouco o tamanho */
   }
 
+  .sobre-container {
+    padding: 40px 0 70px;
+  }
+
   .sobre-bloco {
-    flex-direction: column !important; /* Força a ficar um em cima do outro */
+    min-height: auto;
+    flex-direction: column !important;
     justify-content: center;
+    align-items: center;
     text-align: center !important;
-    gap: 30px;
-    padding: 0 20px;
+    gap: 32px;
+    padding: 70px 20px;
+  }
+
+  .sobre-texto,
+  .parte-2 .sobre-texto {
+    width: 100%;
+    max-width: 620px;
+    flex: initial;
+    flex-basis: auto;
+    padding: 0;
+    text-align: center;
+  }
+
+  .sobre-texto p {
+    font-size: clamp(1.25rem, 5vw, 1.55rem);
+    line-height: 1.25;
+  }
+
+  .foto-sobre {
+    width: calc(100vw - 40px);
+    max-width: 560px;
+    height: auto;
+    flex: initial;
+    border-radius: 8px;
+  }
+
+  .parte-1,
+  .parte-2,
+  .parte-3 {
+    justify-content: center;
   }
 
   .fundo-sticky {
@@ -1308,6 +1343,7 @@ select.input-linha:valid {
     height: 350px; /* Imagens mais pequenas no mobile */
     margin: 0 10px;
   }
+
   .fechar-lightbox {
     top: 15px;
     right: 25px;
@@ -1316,6 +1352,7 @@ select.input-linha:valid {
   .secao-missao {
     padding: 0 20px;
   }
+
   .texto-revelar {
     font-size: 1.8rem; /* Reduzimos o tamanho para caber no telemóvel */
   }
@@ -1452,5 +1489,21 @@ select.input-linha:valid {
     justify-content: center;
     text-align: center;
     gap: 10px;
+  }
+}
+
+@media (max-width: 420px) {
+  .sobre-bloco {
+    padding: 60px 18px;
+    gap: 28px;
+  }
+
+  .sobre-texto p {
+    font-size: 1.22rem;
+  }
+
+  .foto-sobre {
+    width: 100%;
+    max-width: none;
   }
 }
