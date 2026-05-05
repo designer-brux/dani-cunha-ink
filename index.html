@@ -13,7 +13,6 @@
     />
   </head>
   <body>
-    <canvas id="cursor-tinta"></canvas>
     <canvas id="cenario3d"></canvas>
 
     <header class="cabecalho" id="meu-cabecalho">
@@ -27,9 +26,9 @@
       </button>
 
       <nav class="navegacao" id="menu-navegacao">
-        <a href="#quem-sou">Quem sou eu</a>
-        <a href="#portfolio">Portfólio</a>
-        <a href="#estudio">Estúdio</a>
+        <a href="#quem-sou" class="link-riscado">Quem sou eu</a>
+        <a href="#portfolio" class="link-riscado">Portfólio</a>
+        <a href="#estudio" class="link-riscado">Estúdio</a>
         <a href="#orcamento" class="btn-orcamento">Orçamento</a>
       </nav>
     </header>
@@ -41,7 +40,8 @@
         </div>
 
         <div class="texto-canto inferior-esquerdo">
-          ONDE A ARTE<br />VIVE NA PELE
+          ONDE A ARTE<br />
+          VIVE NA <span class="marcacao-scroll underline-scroll">PELE</span>
         </div>
 
         <div class="centro-hero">
@@ -52,7 +52,15 @@
       <section id="quem-sou" class="sobre-container">
         <div class="sobre-bloco parte-1 animar-scroll">
           <div class="sobre-texto">
-            <h2 class="titulo-secao">Quem é a Dani?</h2>
+            <h2 class="titulo-secao">
+              Quem é a
+              <span class="marcacao-scroll circulo-scroll">
+                Dani?
+                <svg viewBox="0 0 180 70" preserveAspectRatio="none">
+                  <path d="M12,35 C20,5 160,0 170,32 C180,68 20,70 10,38" />
+                </svg>
+              </span>
+            </h2>
             <p>
               Sempre inquieta e inconformada, foi por meio do desenho e da
               pintura que Dani conseguiu colocar para fora sua forma especial de
@@ -86,7 +94,10 @@
               sem nunca deixar de lado a essência do cliente. Com essa
               dedicação, Dani se tornou uma das maiores referências em tatuagem
               no Brasil, tendo sido eleita por diversas vezes uma das 10
-              melhores tatuadoras do País.
+              melhores
+              <span class="marcacao-scroll underline-scroll"
+                >tatuadoras do País.</span
+              >
             </p>
           </div>
         </div>
@@ -105,7 +116,14 @@
 
         <div class="textos-deslizantes">
           <div class="bloco-dif">
-            <h2>Pesquisa</h2>
+            <h2>
+              <span class="marcacao-scroll circulo-scroll">
+                Pesquisa
+                <svg viewBox="0 0 180 70" preserveAspectRatio="none">
+                  <path d="M12,35 C20,5 160,0 170,32 C180,68 20,70 10,38" />
+                </svg>
+              </span>
+            </h2>
             <p>
               Antes de realizar a tattoo, é fundamental fazer uma pesquisa
               cuidadosa tanto sobre a personalidade do cliente quanto sobre o
@@ -118,7 +136,14 @@
           </div>
 
           <div class="bloco-dif">
-            <h2>Anatomia</h2>
+            <h2>
+              <span class="marcacao-scroll circulo-scroll">
+                Anatomia
+                <svg viewBox="0 0 180 70" preserveAspectRatio="none">
+                  <path d="M12,35 C20,5 160,0 170,32 C180,68 20,70 10,38" />
+                </svg>
+              </span>
+            </h2>
             <p>
               A anatomia é um fator crucial a ser considerado na hora de criar
               uma tattoo. O artista precisa entender como o design se adaptará à
@@ -131,7 +156,14 @@
           </div>
 
           <div class="bloco-dif">
-            <h2>Vida longa</h2>
+            <h2>
+              <span class="marcacao-scroll circulo-scroll">
+                Vida longa
+                <svg viewBox="0 0 180 70" preserveAspectRatio="none">
+                  <path d="M12,35 C20,5 160,0 170,32 C180,68 20,70 10,38" />
+                </svg>
+              </span>
+            </h2>
             <p>
               Longevidade da tatuagem é algo importante de considerar. O design
               não deve ser apenas agradável, mas também resistir à ação do
@@ -147,7 +179,10 @@
 
       <section id="portfolio" class="secao-portfolio">
         <div class="portfolio-cabecalho">
-          <h2 class="titulo-secao">Traços eternizados</h2>
+          <h2 class="titulo-secao">
+            Traços
+            <span class="marcacao-scroll underline-scroll">eternizados</span>
+          </h2>
           <p>
             Geométrico, pontilhismo, aquarela, ornamental, moderno, tradicional,
             diversos estilos para contar a tua história.
@@ -187,42 +222,57 @@
         </div>
       </section>
 
-      <section id="estudio" class="secao-estudio">
-        <div class="box-estudio">
-          <div class="slideshow-estudio">
-            <img
-              src="https://images.unsplash.com/photo-1598371839696-5c5bb00bdc28?q=80&w=800&auto=format&fit=crop"
-              class="foto-slide ativa"
-              alt="Estúdio Foto 1"
-            />
-            <img
-              src="https://images.unsplash.com/photo-1621360841013-c76831f1dbce?q=80&w=800&auto=format&fit=crop"
-              class="foto-slide"
-              alt="Estúdio Foto 2"
-            />
-            <img
-              src="https://images.unsplash.com/photo-1560707303-4e980ce876ad?q=80&w=800&auto=format&fit=crop"
-              class="foto-slide"
-              alt="Estúdio Foto 3"
-            />
+      <section id="estudio" class="secao-estudio-nova">
+        <!-- BLOCO 1: TELA DE ABERTURA -->
+        <div class="estudio-abertura">
+          <img
+            src="public/D11.webp"
+            class="estudio-abertura-bg"
+            alt="Interior do estúdio"
+          />
+
+          <div class="estudio-abertura-overlay"></div>
+
+          <h2 class="estudio-titulo-grande">Estúdio Exclusivo</h2>
+        </div>
+
+        <!-- BLOCO 2: DUAS IMAGENS + TEXTO CENTRAL -->
+        <div class="estudio-galeria-scroll">
+          <img
+            src="public/D3.webp"
+            class="estudio-img estudio-img-1"
+            alt="Estúdio Dani Cunha Ink"
+          />
+
+          <div class="estudio-texto-central">
+            <p>
+              Um espaço pensado para acolher, inspirar e transformar cada
+              projeto em uma experiência única.
+            </p>
           </div>
 
-          <div class="texto-estudio">
-            <h2>Estúdio Exclusivo</h2>
-            <p>
-              Ambiente acolhedor e confortável no coração de Valinhos/SP,
-              oferecemos um espaço luminoso e tranquilo para sua experiência de
-              tatuagem.
-              <br />
-              Temos rigorosos padrões de higiene, equipamentos de última geração
-              e garantimos segurança e qualidade em cada trabalho.
-              <br />
-              Temos fácil acesso por transporte público e estacionamentos
-              próximos.
-              <br />
-              Venha conhecer nosso espaço e descubra por que somos referência em
-              arte corporal no Brasil.
-            </p>
+          <img
+            src="public/D8.webp"
+            class="estudio-img estudio-img-2"
+            alt="Ambiente do estúdio"
+          />
+        </div>
+
+        <!-- BLOCO 3: IMAGEM 50% + TEXTO 50% -->
+        <div class="estudio-duas-colunas">
+          <div class="estudio-coluna-imagem">
+            <img src="public/D5.webp" alt="Interior do estúdio" />
+          </div>
+
+          <div class="estudio-coluna-texto">
+            <div>
+              <h3>Ambiente seguro, íntimo e autoral</h3>
+              <p>
+                Localizado em Valinhos/SP, o estúdio oferece conforto,
+                privacidade e rigor técnico para que cada tatuagem seja criada
+                com calma, escuta e precisão.
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -232,10 +282,7 @@
           <form id="form-tatuagem" class="orcamento-grid" autocomplete="off">
             <div class="coluna-form coluna-info">
               <h2 class="titulo-secao">Vamos criar juntos?</h2>
-              <p>
-                Conta-me a tua ideia. Preenche os dados ao lado e responderei o
-                mais breve possível.
-              </p>
+              <p>Preenche os dados e responderei o mais breve possível.</p>
             </div>
 
             <div class="coluna-form">
@@ -367,40 +414,53 @@
       </section>
 
       <footer class="secao-rodape">
-        <div class="rodape-logo conteudo-rodape">
-          <img src="/logo.svg" alt="Dani Cunha Ink" class="logo-gigante" />
+        <div class="rodape-conteudo-principal">
+          <div class="rodape-logo conteudo-rodape">
+            <img src="/logo.svg" alt="Dani Cunha Ink" class="logo-gigante" />
+          </div>
+
+          <nav class="rodape-sociais conteudo-rodape">
+            <a
+              href="https://instagram.com"
+              target="_blank"
+              class="link-riscado"
+            >
+              Instagram
+            </a>
+            <a href="https://tiktok.com" target="_blank" class="link-riscado">
+              TikTok
+            </a>
+            <a href="https://youtube.com" target="_blank" class="link-riscado">
+              YouTube
+            </a>
+          </nav>
+
+          <div class="rodape-contato conteudo-rodape">
+            <div class="contato-item">
+              <span class="contato-rotulo">Endereço</span>
+              <p>
+                R. Luís Spiandorelli Neto, 30 - Jardim Paiquere <br />
+                Torre Jequitibá - Sala 808 | Valinhos - SP | 13271-570
+              </p>
+            </div>
+
+            <div class="contato-item">
+              <span class="contato-rotulo">WhatsApp</span>
+              <a href="tel:+5511987902213" class="contato-link">
+                (11) 9 8790-2213
+              </a>
+            </div>
+
+            <div class="contato-item">
+              <span class="contato-rotulo">E-mail</span>
+              <a href="mailto:contato@danicunha.ink" class="contato-link">
+                contato@danicunha.ink
+              </a>
+            </div>
+          </div>
         </div>
 
-        <nav class="rodape-sociais conteudo-rodape">
-          <a href="https://instagram.com" target="_blank">Instagram</a>
-          <a href="https://tiktok.com" target="_blank">TikTok</a>
-          <a href="https://youtube.com" target="_blank">YouTube</a>
-        </nav>
-
-        <div class="rodape-contato conteudo-rodape">
-          <div class="contato-item">
-            <span class="contato-rotulo">Endereço</span>
-            <p>
-              R. Luís Spiandorelli Neto, 30 - Jardim Paiquere <br />
-              Torre Jequitibá - Sala 808 | Valinhos - SP | 13271-570
-            </p>
-          </div>
-
-          <div class="contato-item">
-            <span class="contato-rotulo">WhatsApp</span>
-            <a href="tel:+5511987902213" class="contato-link"
-              >(11) 9 8790-2213</a
-            >
-          </div>
-
-          <div class="contato-item">
-            <span class="contato-rotulo">E-mail</span>
-            <a href="mailto:contato@danicunha.ink" class="contato-link"
-              >contato@danicunha.ink</a
-            >
-          </div>
-        </div>
-        <div class="rodape-inferior conteudo-rodape">
+        <div class="rodape-inferior">
           <p>Copyright © <span id="ano-atual"></span> – Dani Cunha Ink</p>
           <p>
             Desenvolvido por
@@ -408,12 +468,30 @@
               href="https://brux.framer.website/"
               target="_blank"
               class="dev-link"
-              >BruX</a
             >
+              BrUX
+            </a>
           </p>
         </div>
       </footer>
     </main>
+
+    <a
+      href="https://wa.me/5511987902213"
+      class="botao-whatsapp-flutuante"
+      id="botao-whatsapp"
+      aria-label="Falar no WhatsApp"
+    >
+      <svg
+        viewBox="0 0 32 32"
+        class="icone-whatsapp"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M16.03 3C8.85 3 3 8.83 3 16c0 2.3.6 4.54 1.74 6.52L3.05 29l6.64-1.65A13.02 13.02 0 0 0 16.03 29C23.2 29 29 23.17 29 16S23.2 3 16.03 3Zm0 23.78c-2 0-3.95-.53-5.66-1.54l-.4-.24-3.94.98 1.05-3.82-.26-.42A10.72 10.72 0 0 1 5.23 16c0-5.94 4.85-10.78 10.8-10.78 5.94 0 10.77 4.84 10.77 10.78s-4.83 10.78-10.77 10.78Zm5.9-8.06c-.32-.16-1.9-.94-2.2-1.05-.3-.1-.52-.16-.74.16-.21.32-.85 1.05-1.04 1.26-.19.21-.38.24-.7.08-.32-.16-1.36-.5-2.59-1.6-.96-.85-1.6-1.9-1.8-2.22-.18-.32-.02-.5.14-.66.14-.14.32-.38.48-.57.16-.19.21-.32.32-.54.1-.21.05-.4-.03-.56-.08-.16-.74-1.78-1.01-2.43-.27-.64-.54-.55-.74-.56h-.63c-.21 0-.56.08-.85.4-.3.32-1.12 1.1-1.12 2.67s1.15 3.1 1.31 3.31c.16.21 2.26 3.45 5.48 4.84.77.33 1.37.53 1.83.68.77.24 1.47.21 2.02.13.62-.09 1.9-.78 2.17-1.53.27-.75.27-1.4.19-1.53-.08-.13-.29-.21-.61-.37Z"
+        />
+      </svg>
+    </a>
 
     <script type="module" src="src/main.js"></script>
   </body>

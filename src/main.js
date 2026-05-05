@@ -1,156 +1,303 @@
 import * as THREE from "three";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-// 1. Nova importação: O "leitor" de ficheiros .glb
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// --- CONFIGURAÇÃO DO PALCO ---
+// ===============================
+// CONFIGURAÇÃO DO CANVAS
+// ===============================
+const canvas = document.querySelector("#cenario3d");
+
+if (!canvas) {
+  console.error("Canvas #cenario3d não encontrado no HTML.");
+}
+
+// ===============================
+// RENDERIZADOR
+// ===============================
+const renderizador = new THREE.WebGLRenderer({
+  canvas,
+  alpha: true,
+  antialias: true,
+});
+
+renderizador.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+renderizador.setSize(window.innerWidth, window.innerHeight);
+renderizador.toneMapping = THREE.ACESFilmicToneMapping;
+renderizador.toneMappingExposure = 1;
+renderizador.outputColorSpace = THREE.SRGBColorSpace;
+renderizador.autoClear = false;
+
+// ===============================
+// CENA PRINCIPAL 3D
+// ===============================
 const cena = new THREE.Scene();
+
 const camara = new THREE.PerspectiveCamera(
   75,
   window.innerWidth / window.innerHeight,
   0.1,
   1000,
 );
-const renderizador = new THREE.WebGLRenderer({
-  canvas: document.querySelector("#cenario3d"),
-  alpha: true,
-  antialias: true, // <-- NOVO: Ativa a suavização das bordas (adeus "escadinhas")
+
+camara.position.z = 5;
+
+// ===============================
+// CENA DO FUNDO FLUIDO
+// ===============================
+const cenaFundo = new THREE.Scene();
+const cameraFundo = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+
+const materialFundo = new THREE.ShaderMaterial({
+  depthWrite: false,
+  depthTest: false,
+
+  uniforms: {
+    uTime: { value: 0 },
+    uMouse: { value: new THREE.Vector2(0.5, 0.5) },
+    uResolution: {
+      value: new THREE.Vector2(window.innerWidth, window.innerHeight),
+    },
+  },
+
+  vertexShader: `
+    void main() {
+      gl_Position = vec4(position, 1.0);
+    }
+  `,
+
+  fragmentShader: `
+    precision mediump float;
+
+    uniform float uTime;
+    uniform vec2 uMouse;
+    uniform vec2 uResolution;
+
+    float random(vec2 st) {
+      return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
+    }
+
+    float noise(vec2 st) {
+      vec2 i = floor(st);
+      vec2 f = fract(st);
+
+      float a = random(i);
+      float b = random(i + vec2(1.0, 0.0));
+      float c = random(i + vec2(0.0, 1.0));
+      float d = random(i + vec2(1.0, 1.0));
+
+      vec2 u = f * f * (3.0 - 2.0 * f);
+
+      return mix(a, b, u.x) +
+             (c - a) * u.y * (1.0 - u.x) +
+             (d - b) * u.x * u.y;
+    }
+
+    void main() {
+      vec2 uv = gl_FragCoord.xy / uResolution.xy;
+
+      float dist = distance(uv, uMouse);
+
+      // Distorção próxima ao mouse
+      uv += (uv - uMouse) * 0.50 * exp(-dist * 4.0);
+
+      float n1 = noise(uv * 2.5 + uTime * 0.18);
+      float n2 = noise(uv * 5.0 - uTime * 0.08);
+
+      float n = mix(n1, n2, 0.35);
+
+      vec3 preto = vec3(0.005, 0.005, 0.007);
+      vec3 vinho = vec3(0.12, 0.00, 0.04);
+      vec3 roxo = vec3(0.04, 0.00, 0.08);
+
+      vec3 color = mix(preto, vinho, n * 1.25);
+      color = mix(color, roxo, smoothstep(0.15, 0.95, dist) * 0.9);
+
+      gl_FragColor = vec4(color, 1.0);
+    }
+  `,
 });
-renderizador.setPixelRatio(window.devicePixelRatio);
-renderizador.setSize(window.innerWidth, window.innerHeight);
 
-renderizador.toneMapping = THREE.ACESFilmicToneMapping;
-renderizador.toneMappingExposure = 1;
+const meshFundo = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), materialFundo);
+cenaFundo.add(meshFundo);
 
-// 2. ADICIONAR LUZES (Sem isto, o modelo fica escuro)
-const luzAmbiente = new THREE.AmbientLight(0xffffff, 2); // Luz que ilumina tudo por igual
+// ===============================
+// LUZES DA CENA 3D
+// ===============================
+const luzAmbiente = new THREE.AmbientLight(0xffffff, 2);
 cena.add(luzAmbiente);
 
-const luzDirecional = new THREE.DirectionalLight(0xffffff, 3); // Luz como a do sol
+const luzDirecional = new THREE.DirectionalLight(0xffffff, 3);
 luzDirecional.position.set(5, 5, 5);
 cena.add(luzDirecional);
 
 const luzPreenchimento = new THREE.DirectionalLight(0xffffff, 3);
-luzPreenchimento.position.set(-5, 0, -5); // Vem da esquerda e de trás
+luzPreenchimento.position.set(-5, 0, -5);
 cena.add(luzPreenchimento);
 
-// DICA EXTRA: Alguns modelos .glb precisam deste pequeno ajuste de cor
-// para as cores ficarem mais vivas e reais no ecrã:
-renderizador.outputColorSpace = THREE.SRGBColorSpace;
-
-// 3. CRIAR UM GRUPO (A "caixa" invisível que vamos animar)
-// Usamos um grupo para podermos animá-lo mesmo enquanto o ficheiro pesado está a carregar
+// ===============================
+// MODELO 3D
+// ===============================
 const grupoModelo = new THREE.Group();
 cena.add(grupoModelo);
 
-// 4. CARREGAR O MODELO 3D
 const carregador = new GLTFLoader();
-// O Vite sabe que '/modelo.glb' significa ir procurar na pasta 'public'
-carregador.load("/modelo.glb", function (gltf) {
-  const modeloArte = gltf.scene;
 
-  // Dependendo de quem fez o modelo, ele pode vir gigante ou minúsculo.
-  // Podes alterar estes números para (0.5, 0.5, 0.5) para encolher, ou (2, 2, 2) para aumentar.
-  modeloArte.scale.set(2, 2, 2);
+carregador.load(
+  "/modelo.glb",
 
-  // Centrar o modelo no ecrã (opcional, mas recomendado)
-  modeloArte.position.set(0, 0, 0);
+  function (gltf) {
+    const modeloArte = gltf.scene;
 
-  // Adiciona o modelo carregado dentro do nosso grupo invisível
-  grupoModelo.add(modeloArte);
-});
+    modeloArte.scale.set(2, 2, 2);
+    modeloArte.position.set(0, 0, 0);
 
-camara.position.z = 5; // Afastei um pouco mais a câmara para modelos maiores
+    grupoModelo.add(modeloArte);
 
-// --- ANIMAÇÃO COM GSAP ---
-// Agora animamos o GRUPO, que contém o modelo
+    console.log("Modelo 3D carregado com sucesso.");
+  },
+
+  function (progresso) {
+    if (progresso.total > 0) {
+      const porcentagem = (progresso.loaded / progresso.total) * 100;
+      console.log(`Carregando modelo: ${porcentagem.toFixed(0)}%`);
+    }
+  },
+
+  function (erro) {
+    console.error("Erro ao carregar o modelo 3D:", erro);
+  },
+);
+
+// ===============================
+// ANIMAÇÃO DO MODELO COM SCROLL
+// ===============================
+// Agora a rotação termina antes da seção de orçamento.
+// Assim o modelo não tenta continuar até o footer.
 gsap.to(grupoModelo.rotation, {
-  y: Math.PI * 2,
-  x: Math.PI,
+  y: Math.PI * 6,
+  x: Math.PI * 2,
+  z: 0,
   scrollTrigger: {
     trigger: "main",
     start: "top top",
-    end: "bottom bottom",
-    scrub: 1,
+    endTrigger: "#orcamento",
+    end: "top bottom",
+    scrub: 1.2,
   },
 });
 
-// --- LOOP DE RENDERIZAÇÃO ---
+// ===============================
+// INTERAÇÃO COM MOUSE
+// ===============================
+window.addEventListener("mousemove", (e) => {
+  materialFundo.uniforms.uMouse.value.x = e.clientX / window.innerWidth;
+  materialFundo.uniforms.uMouse.value.y = 1 - e.clientY / window.innerHeight;
+});
+
+// ===============================
+// LOOP DE RENDERIZAÇÃO
+// ===============================
+let renderizar3D = true;
+
 function animar() {
   requestAnimationFrame(animar);
-  renderizador.render(cena, camara);
+
+  materialFundo.uniforms.uTime.value += 0.01;
+
+  renderizador.clear();
+
+  // 1. Renderiza o fundo fluido
+  renderizador.render(cenaFundo, cameraFundo);
+
+  // 2. Limpa profundidade para o modelo não ser bloqueado pelo fundo
+  renderizador.clearDepth();
+
+  // 3. Renderiza o modelo 3D apenas quando permitido
+  if (renderizar3D) {
+    renderizador.render(cena, camara);
+  }
 }
+
 animar();
 
-// --- RESPONSIVIDADE PARA TELEMÓVEIS E REDIMENSIONAMENTO ---
+// ===============================
+// LIGAR / DESLIGAR O MODELO 3D POR SEÇÃO
+// ===============================
+// O fundo fluido continua ativo.
+// Apenas o modelo 3D é desligado antes do orçamento/footer.
+ScrollTrigger.create({
+  trigger: "#orcamento",
+  start: "top bottom",
 
+  onEnter: () => {
+    renderizar3D = false;
+  },
+
+  onLeaveBack: () => {
+    renderizar3D = true;
+  },
+});
+
+// ===============================
+// RESIZE
+// ===============================
 window.addEventListener("resize", () => {
-  // 1. Atualiza a proporção da Câmara (os nossos "olhos")
-  camara.aspect = window.innerWidth / window.innerHeight;
-  // Sempre que mudamos a proporção da câmara, temos de chamar este comando:
-  camara.updateProjectionMatrix();
-
-  // 2. Atualiza o tamanho do Renderizador (o nosso "palco")
+  renderizador.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
   renderizador.setSize(window.innerWidth, window.innerHeight);
 
-  // 3. Garante que a qualidade não se perde ao rodar o telemóvel
-  renderizador.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  camara.aspect = window.innerWidth / window.innerHeight;
+  camara.updateProjectionMatrix();
+
+  materialFundo.uniforms.uResolution.value.set(
+    window.innerWidth,
+    window.innerHeight,
+  );
+
+  ScrollTrigger.refresh();
 });
 
-// --- CABEÇALHO INTELIGENTE (Smart Header) ---
-
-// 1. Selecionamos o cabeçalho no HTML
+// ===============================
+// CABEÇALHO INTELIGENTE
+// ===============================
 const cabecalho = document.querySelector("#meu-cabecalho");
-
-// 2. Criamos uma variável para memorizar a última posição do scroll
 let ultimoScroll = 0;
 
-// 3. Adicionamos um "ouvinte" que deteta sempre que o utilizador rola a página
-window.addEventListener("scroll", () => {
-  // Descobre a posição atual (quantos pixeis descemos do topo)
-  const scrollAtual = window.scrollY;
+if (cabecalho) {
+  window.addEventListener("scroll", () => {
+    const scrollAtual = window.scrollY;
 
-  // Proteção: Se estivermos no topo absoluto, garante que o menu aparece
-  // (útil para os telemóveis que têm aquele efeito de "mola" no topo)
-  if (scrollAtual <= 0) {
-    cabecalho.classList.remove("escondido");
-    return; // Pára de ler o resto da função aqui
-  }
+    if (scrollAtual <= 0) {
+      cabecalho.classList.remove("escondido");
+      ultimoScroll = scrollAtual;
+      return;
+    }
 
-  // A LÓGICA PRINCIPAL:
-  if (scrollAtual > ultimoScroll) {
-    // Se a posição de agora é MAIOR que a anterior, significa que estamos a descer.
-    // Adicionamos a classe que criámos no CSS para o empurrar para cima.
-    cabecalho.classList.add("escondido");
-  } else {
-    // Se a posição de agora é MENOR, significa que estamos a subir.
-    // Removemos a classe para ele voltar a descer.
-    cabecalho.classList.remove("escondido");
-  }
+    if (scrollAtual > ultimoScroll) {
+      cabecalho.classList.add("escondido");
+    } else {
+      cabecalho.classList.remove("escondido");
+    }
 
-  // No fim, atualizamos a memória com a posição atual para a próxima comparação
-  ultimoScroll = scrollAtual;
-});
+    ultimoScroll = scrollAtual;
+  });
+}
 
-// --- MENU HAMBURGER (Mobile) ---
+// ===============================
+// MENU HAMBURGER
+// ===============================
 const btnMenu = document.querySelector("#btn-menu");
 const menuNavegacao = document.querySelector("#menu-navegacao");
-// Seleciona todos os links dentro da navegação
 const linksMenu = document.querySelectorAll(".navegacao a");
 
 if (btnMenu && menuNavegacao) {
-  // 1. O que acontece ao clicar no botão Hamburger?
   btnMenu.addEventListener("click", () => {
-    // A função toggle adiciona a classe se ela não existir, e remove se ela existir!
     menuNavegacao.classList.toggle("ativa");
     btnMenu.classList.toggle("ativo");
   });
 
-  // 2. O que acontece ao clicar num dos links do menu?
-  // Precisamos fechar o menu automaticamente para o utilizador ver a secção!
   linksMenu.forEach((link) => {
     link.addEventListener("click", () => {
       menuNavegacao.classList.remove("ativa");
@@ -159,54 +306,49 @@ if (btnMenu && menuNavegacao) {
   });
 }
 
-// --- ANIMAÇÕES DE SCROLL (Secção Sobre Mim) ---
-
+// ===============================
+// ANIMAÇÕES DE SCROLL — SOBRE
+// ===============================
 const elementosAnimar = document.querySelectorAll(".animar-scroll");
 
 if (elementosAnimar.length > 0) {
   elementosAnimar.forEach((elemento) => {
-    // Usamos o fromTo: De {estadoA} Para {estadoB}
     gsap.fromTo(
       elemento,
       {
-        // 1. ESTADO INICIAL (De onde começa)
         opacity: 0,
-        y: 100, // Começa 100px para baixo
+        y: 100,
       },
       {
-        // 2. ESTADO FINAL (Para onde vai)
         opacity: 1,
-        y: 0, // Volta à posição original (0)
+        y: 0,
         duration: 2.5,
         ease: "power2.out",
         scrollTrigger: {
           trigger: elemento,
-          start: "top 85%", // A animação dispara quando o topo do elemento chega perto do fundo do ecrã
-          // markers: true // Descomenta esta linha se a animação continuar sem aparecer
+          start: "top 85%",
         },
       },
     );
   });
 }
 
-// --- STICKY SCROLL (Secção Diferenciais) ---
+// ===============================
+// STICKY SCROLL — DIFERENCIAIS
+// ===============================
 const blocosTexto = document.querySelectorAll(".bloco-dif");
 const imagensFundo = document.querySelectorAll(".img-diferencial");
 
-if (blocosTexto.length > 0) {
+if (blocosTexto.length > 0 && imagensFundo.length > 0) {
   blocosTexto.forEach((bloco, index) => {
     ScrollTrigger.create({
       trigger: bloco,
-      start: "top center", // Dispara quando o topo do texto atinge o meio do ecrã
-      end: "bottom center", // Termina quando o fundo do texto sai do meio do ecrã
+      start: "top center",
+      end: "bottom center",
 
-      // onToggle executa sempre que o elemento entra ou sai da área ativa
       onToggle: (self) => {
-        if (self.isActive) {
-          // 1. Remove a classe 'ativa' de TODAS as imagens
+        if (self.isActive && imagensFundo[index]) {
           imagensFundo.forEach((img) => img.classList.remove("ativa"));
-
-          // 2. Adiciona a classe 'ativa' apenas à imagem correspondente ao texto atual
           imagensFundo[index].classList.add("ativa");
         }
       },
@@ -214,91 +356,221 @@ if (blocosTexto.length > 0) {
   });
 }
 
-// --- CARROSSEL INFINITO E LIGHTBOX (Portfólio) ---
+// ===============================
+// CARROSSEL INFINITO E LIGHTBOX
+// ===============================
 const pista = document.querySelector("#pista-portfolio");
 const janelaLightbox = document.querySelector("#janela-lightbox");
 const imgAmpliada = document.querySelector("#img-ampliada");
 
-if (pista) {
-  // 1. Clonar as imagens para criar o efeito infinito sem esforço manual
+if (pista && janelaLightbox && imgAmpliada) {
   const imagensOriginais = Array.from(pista.children);
 
   imagensOriginais.forEach((img) => {
-    const clone = img.cloneNode(true); // Faz uma cópia exata da imagem
-    pista.appendChild(clone); // Cola-a no fim da fila
+    const clone = img.cloneNode(true);
+    pista.appendChild(clone);
   });
 
-  // 2. Configurar o Lightbox (Abrir a imagem)
-  // Precisamos selecionar as imagens novamente para incluir os clones!
   const todasAsImagens = document.querySelectorAll(".img-portfolio");
 
   todasAsImagens.forEach((img) => {
     img.addEventListener("click", () => {
-      imgAmpliada.src = img.src; // Copia a fonte da foto clicada para o ecrã inteiro
-      janelaLightbox.classList.add("ativo"); // Mostra a janela
+      imgAmpliada.src = img.src;
+      janelaLightbox.classList.add("ativo");
     });
   });
 
-  // 3. Configurar o Lightbox (Fechar)
-  // Fecha se clicar na janela escura ou no botão de fechar
   janelaLightbox.addEventListener("click", () => {
     janelaLightbox.classList.remove("ativo");
-    // Espera a animação acabar para limpar a imagem
-    setTimeout(() => (imgAmpliada.src = ""), 400);
+
+    setTimeout(() => {
+      imgAmpliada.src = "";
+    }, 400);
   });
 }
 
-// --- TEXT REVEAL ON SCROLL (Secção Missão) ---
+// ===============================
+// TEXT REVEAL — MISSÃO
+// ===============================
 const textoMissao = document.querySelector("#texto-missao");
 
 if (textoMissao) {
-  // 1. O JavaScript pega no texto inteiro e corta-o palavra por palavra
   const palavras = textoMissao.innerText.split(" ");
 
-  // 2. Limpamos a caixa original
   textoMissao.innerHTML = "";
 
-  // 3. Colocamos as palavras de volta, mas agora cada uma tem o seu próprio <span>
   palavras.forEach((palavra) => {
     const span = document.createElement("span");
     span.className = "palavra-revelar";
-    span.innerText = palavra + " "; // Adiciona um espaço no fim para não colar
+    span.innerText = palavra + " ";
     textoMissao.appendChild(span);
   });
 
-  // 4. Dizemos ao GSAP para "acender" essas palavras
   gsap.to(".palavra-revelar", {
-    opacity: 1, // Passa para 100% visível
-    stagger: 0.1, // Acende uma a uma (em cascata)
+    opacity: 1,
+    stagger: 0.1,
     scrollTrigger: {
       trigger: ".secao-missao",
-      start: "top 60%", // Começa quando a secção entra no ecrã
-      end: "bottom 70%", // Acaba de revelar antes de saíres da secção
-      scrub: 1, // A MÁGICA: Liga a animação ao teu scroll! (Com 1 segundo de fluidez)
+      start: "top 60%",
+      end: "bottom 70%",
+      scrub: 1,
     },
   });
 }
 
-// --- SLIDESHOW AUTOMÁTICO (Secção Estúdio) ---
-const slidesEstudio = document.querySelectorAll(".foto-slide");
-let slideAtual = 0; // Começamos no primeiro slide (índice 0)
+// ===============================
+// ANIMAÇÕES — ESTÚDIO NOVO
+// ===============================
+const secaoEstudioNova = document.querySelector(".secao-estudio-nova");
 
-if (slidesEstudio.length > 0) {
-  // A função setInterval é como um relógio que roda código a cada X tempo
-  setInterval(() => {
-    // 1. Remove a classe 'ativa' da foto que está visível agora
-    slidesEstudio[slideAtual].classList.remove("ativa");
+if (secaoEstudioNova && window.innerWidth > 768) {
+  // Título de abertura: aparece vindo de baixo
+  gsap.from(".estudio-titulo-grande", {
+    yPercent: 35,
+    opacity: 0,
+    duration: 1.2,
+    ease: "power4.out",
+    scrollTrigger: {
+      trigger: ".estudio-abertura",
+      start: "top 70%",
+    },
+  });
 
-    // 2. Calcula qual é a próxima foto.
-    // A matemática (slideAtual + 1) % quantidade garante que, quando chegar à última, volta à primeira!
-    slideAtual = (slideAtual + 1) % slidesEstudio.length;
+  gsap.to(".estudio-abertura-bg", {
+    scale: 1,
+    ease: "none",
+    scrollTrigger: {
+      trigger: ".estudio-abertura",
+      start: "top bottom",
+      end: "bottom top",
+      scrub: 1.4,
+    },
+  });
 
-    // 3. Adiciona a classe 'ativa' à nova foto
-    slidesEstudio[slideAtual].classList.add("ativa");
-  }, 4000); // 4000 milissegundos = Muda de foto a cada 4 segundos
+  // Imagem 1 sobe e revela com máscara
+  gsap.fromTo(
+    ".estudio-img-1",
+    {
+      y: 220,
+      opacity: 0,
+      clipPath: "inset(100% 0% 0% 0%)",
+    },
+    {
+      y: -80,
+      opacity: 1,
+      clipPath: "inset(0% 0% 0% 0%)",
+      ease: "none",
+      scrollTrigger: {
+        trigger: ".estudio-galeria-scroll",
+        start: "top bottom",
+        end: "center center",
+        scrub: 1.3,
+      },
+    },
+  );
+
+  // Imagem 2 sobe em outro ritmo
+  gsap.fromTo(
+    ".estudio-img-2",
+    {
+      y: 300,
+      opacity: 0,
+      clipPath: "inset(100% 0% 0% 0%)",
+    },
+    {
+      y: -120,
+      opacity: 1,
+      clipPath: "inset(0% 0% 0% 0%)",
+      ease: "none",
+      scrollTrigger: {
+        trigger: ".estudio-galeria-scroll",
+        start: "top center",
+        end: "bottom center",
+        scrub: 1.5,
+      },
+    },
+  );
+
+  // Texto central aparece suave
+  gsap.fromTo(
+    ".estudio-texto-central p",
+    {
+      y: 80,
+      opacity: 0,
+      filter: "blur(4px)",
+    },
+    {
+      y: 0,
+      opacity: 1,
+      filter: "blur(0px)",
+      ease: "none",
+      scrollTrigger: {
+        trigger: ".estudio-galeria-scroll",
+        start: "top 85%",
+        end: "35% center",
+        scrub: 1.2,
+      },
+    },
+  );
+
+  // Texto central vai sumindo antes do próximo bloco
+  gsap.to(".estudio-texto-central p", {
+    y: -80,
+    opacity: 0,
+    filter: "blur(4px)",
+    ease: "none",
+    scrollTrigger: {
+      trigger: ".estudio-galeria-scroll",
+      start: "65% center",
+      end: "bottom 40%",
+      scrub: 1.2,
+    },
+  });
+
+  // Bloco 50/50: imagem entra subindo com escala
+  gsap.fromTo(
+    ".estudio-coluna-imagem img",
+    {
+      scale: 1.18,
+      yPercent: 12,
+      clipPath: "inset(100% 0% 0% 0%)",
+    },
+    {
+      scale: 1,
+      yPercent: 0,
+      clipPath: "inset(0% 0% 0% 0%)",
+      ease: "none",
+      scrollTrigger: {
+        trigger: ".estudio-duas-colunas",
+        start: "top bottom",
+        end: "top center",
+        scrub: 1.3,
+      },
+    },
+  );
+
+  // Bloco 50/50: texto entra
+  gsap.fromTo(
+    ".estudio-coluna-texto div",
+    {
+      y: 90,
+      opacity: 0,
+    },
+    {
+      y: 0,
+      opacity: 1,
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: ".estudio-duas-colunas",
+        start: "top 60%",
+      },
+    },
+  );
 }
 
-// --- LÓGICA DO FORMULÁRIO DE CONTACTO ---
+// ===============================
+// FORMULÁRIO
+// ===============================
 const form = document.querySelector("#form-tatuagem");
 const inputTelefone = document.querySelector("#telefone");
 const inputImagem = document.querySelector("#imagem");
@@ -306,43 +578,41 @@ const nomeArquivoSpan = document.querySelector("#nome-arquivo");
 const mensagemSucesso = document.querySelector("#mensagem-sucesso");
 
 if (form) {
-  // 1. MÁSCARA DE TELEFONE (Formato Brasil: (XX) XXXXX-XXXX)
-  inputTelefone.addEventListener("input", function (e) {
-    let valor = e.target.value;
+  if (inputTelefone) {
+    inputTelefone.addEventListener("input", function (e) {
+      let valor = e.target.value;
 
-    // Remove tudo o que não for número
-    valor = valor.replace(/\D/g, "");
+      valor = valor.replace(/\D/g, "");
+      valor = valor.slice(0, 11);
 
-    // Adiciona os parênteses e o traço progressivamente
-    if (valor.length > 2) {
-      valor = "(" + valor.substring(0, 2) + ") " + valor.substring(2);
-    }
-    if (valor.length > 10) {
-      valor = valor.substring(0, 10) + "-" + valor.substring(10, 14);
-    }
+      if (valor.length > 2) {
+        valor = "(" + valor.substring(0, 2) + ") " + valor.substring(2);
+      }
 
-    e.target.value = valor; // Atualiza o campo com a máscara
-  });
+      if (valor.length > 10) {
+        valor = valor.substring(0, 10) + "-" + valor.substring(10, 15);
+      }
 
-  // 2. ATUALIZAR O NOME DO FICHEIRO
-  inputImagem.addEventListener("change", function (e) {
-    if (e.target.files.length > 0) {
-      // Se escolheu ficheiro, mostra o nome dele
-      nomeArquivoSpan.textContent = "✔️ Ficheiro: " + e.target.files[0].name;
-      nomeArquivoSpan.style.color = "#fff";
-    } else {
-      // Se cancelou, volta ao texto original
-      nomeArquivoSpan.textContent = "+ Anexar Imagem de Referência (Opcional)";
-      nomeArquivoSpan.style.color = "#888";
-    }
-  });
+      e.target.value = valor;
+    });
+  }
+
+  if (inputImagem && nomeArquivoSpan) {
+    inputImagem.addEventListener("change", function (e) {
+      if (e.target.files.length > 0) {
+        nomeArquivoSpan.textContent = "✔️ Ficheiro: " + e.target.files[0].name;
+        nomeArquivoSpan.style.color = "#fff";
+      } else {
+        nomeArquivoSpan.textContent = "+ Anexar Referência";
+        nomeArquivoSpan.style.color = "#888";
+      }
+    });
+  }
 
   const camposObrigatorios = form.querySelectorAll("[required]");
 
   camposObrigatorios.forEach((campo) => {
-    // O evento 'blur' dispara assim que o utilizador clica fora do campo
     campo.addEventListener("blur", () => {
-      // Verifica se a regra do HTML (required, type="email", etc.) não foi cumprida
       if (!campo.checkValidity()) {
         campo.classList.add("erro-validacao");
       } else {
@@ -350,7 +620,6 @@ if (form) {
       }
     });
 
-    // O evento 'input' dispara assim que o utilizador começa a teclar (para limpar o erro imediatamente)
     campo.addEventListener("input", () => {
       if (campo.classList.contains("erro-validacao") && campo.checkValidity()) {
         campo.classList.remove("erro-validacao");
@@ -359,31 +628,26 @@ if (form) {
   });
 
   form.addEventListener("submit", function (e) {
-    e.preventDefault(); // Impede o navegador de recarregar a página!
+    e.preventDefault();
 
-    // Vamos verificar se algum campo obrigatório está vazio
     let temErro = false;
     const campos = form.querySelectorAll("[required]");
 
     campos.forEach((campo) => {
       if (!campo.checkValidity()) {
-        campo.classList.add("erro-validacao"); // Pinta a linha de vermelho
+        campo.classList.add("erro-validacao");
         temErro = true;
       } else {
         campo.classList.remove("erro-validacao");
       }
     });
 
-    // Se estiver tudo preenchido corretamente, mostramos a mensagem de sucesso!
-    if (!temErro) {
-      form.classList.add("escondido"); // Esconde o formulário
-      mensagemSucesso.classList.remove("escondido"); // Mostra a mensagem de sucesso
-
-      // Aqui, num projeto real, colocarias o código para enviar os dados para o teu email (ex: usando Formspree ou EmailJS)
+    if (!temErro && mensagemSucesso) {
+      form.classList.add("escondido");
+      mensagemSucesso.classList.remove("escondido");
     }
   });
 
-  // Limpa o erro de vermelho assim que o utilizador começa a digitar de novo
   form.addEventListener("input", function (e) {
     if (e.target.classList.contains("erro-validacao")) {
       e.target.classList.remove("erro-validacao");
@@ -391,75 +655,121 @@ if (form) {
   });
 }
 
-// --- CURSOR RASTRO DE TINTA (Canvas) ---
-const canvasTinta = document.getElementById("cursor-tinta");
+// ===============================
+// MARCAÇÕES ANIMADAS NO SCROLL
+// ===============================
+const marcacoesScroll = document.querySelectorAll(".marcacao-scroll");
 
-// Só executamos se não for telemóvel
-if (canvasTinta && window.matchMedia("(pointer: fine)").matches) {
-  const ctx = canvasTinta.getContext("2d");
+if (marcacoesScroll.length > 0) {
+  const observerMarcacoes = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("ativo");
+        }
+      });
+    },
+    {
+      threshold: 0.5,
+    },
+  );
 
-  // 1. Ajustar o tamanho da tela para ocupar o ecrã todo
-  function redimensionar() {
-    canvasTinta.width = window.innerWidth;
-    canvasTinta.height = window.innerHeight;
-  }
-  window.addEventListener("resize", redimensionar);
-  redimensionar();
-
-  // 2. Configurações do Rastro
-  let rato = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-  let pontos = [];
-  const quantidadePontos = 35; // Quantos pontos formam a cauda (mais pontos = cauda mais longa)
-
-  // Criamos os pontos iniciais (todos no meio do ecrã)
-  for (let i = 0; i < quantidadePontos; i++) {
-    pontos.push({ x: rato.x, y: rato.y });
-  }
-
-  // 3. Ouve o movimento do rato
-  window.addEventListener("mousemove", (e) => {
-    rato.x = e.clientX;
-    rato.y = e.clientY;
+  marcacoesScroll.forEach((marcacao) => {
+    observerMarcacoes.observe(marcacao);
   });
-
-  // 4. O Ciclo de Desenho (Animação a 60fps)
-  function animarTinta() {
-    // Limpa a tela no início de cada frame
-    ctx.clearRect(0, 0, canvasTinta.width, canvasTinta.height);
-
-    // O primeiro ponto segue exatamente o rato
-    pontos[0].x = rato.x;
-    pontos[0].y = rato.y;
-
-    // Os outros pontos seguem o ponto da frente com um atraso elástico
-    for (let i = 1; i < quantidadePontos; i++) {
-      // O número 0.4 controla a "velocidade" de reação da cauda.
-      pontos[i].x += (pontos[i - 1].x - pontos[i].x) * 0.4;
-      pontos[i].y += (pontos[i - 1].y - pontos[i].y) * 0.4;
-    }
-
-    // Desenhar a "Tinta"
-    for (let i = 0; i < quantidadePontos; i++) {
-      // Começa mais grosso (6px) e vai afinando até 0 na ponta da cauda
-      const espessura = Math.max(0, 6 - i * (6 / quantidadePontos));
-
-      // A transparência começa em 100% e vai sumindo
-      const opacidade = 1 - i / quantidadePontos;
-
-      ctx.beginPath();
-      ctx.arc(pontos[i].x, pontos[i].y, espessura, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255, 255, 255, ${opacidade})`; // Cor Branca com transparência
-      ctx.fill();
-    }
-
-    requestAnimationFrame(animarTinta);
-  }
-
-  animarTinta();
 }
 
-// --- ATUALIZAÇÃO AUTOMÁTICA DO ANO ---
+// ===============================
+// BOTÃO FLUTUANTE WHATSAPP
+// ===============================
+const botaoWhatsapp = document.querySelector("#botao-whatsapp");
+
+if (botaoWhatsapp) {
+  const numeroWhatsapp = "5511987902213";
+  const mensagemWhatsapp = encodeURIComponent(
+    "Olá, Dani! Vim pelo site e gostaria de fazer um orçamento.",
+  );
+
+  const linkDesktop = `https://wa.me/${numeroWhatsapp}?text=${mensagemWhatsapp}`;
+  const linkMobile = `whatsapp://send?phone=${numeroWhatsapp}&text=${mensagemWhatsapp}`;
+
+  const isMobile =
+    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(
+      navigator.userAgent,
+    );
+
+  botaoWhatsapp.setAttribute("href", isMobile ? linkMobile : linkDesktop);
+
+  if (!isMobile) {
+    botaoWhatsapp.setAttribute("target", "_blank");
+    botaoWhatsapp.setAttribute("rel", "noopener noreferrer");
+  }
+}
+
+// ===============================
+// FOOTER REVEAL SIMPLES
+// ===============================
+const secaoOrcamento = document.querySelector(".secao-orcamento");
+const secaoRodape = document.querySelector(".secao-rodape");
+
+if (secaoOrcamento && secaoRodape) {
+  const isMobileFooter = window.innerWidth <= 768;
+
+  if (!isMobileFooter) {
+    gsap.to(secaoOrcamento, {
+      yPercent: -5,
+      scale: 0.965,
+      borderBottomLeftRadius: "70px",
+      borderBottomRightRadius: "70px",
+      ease: "none",
+      scrollTrigger: {
+        trigger: secaoOrcamento,
+        start: "bottom bottom",
+        end: "bottom top",
+        scrub: 1.2,
+
+        onEnter: () => {
+          secaoRodape.classList.add("footer-reveal-visivel");
+        },
+
+        onEnterBack: () => {
+          secaoRodape.classList.add("footer-reveal-visivel");
+        },
+
+        onLeaveBack: () => {
+          secaoRodape.classList.remove("footer-reveal-visivel");
+        },
+      },
+    });
+
+    gsap.fromTo(
+      ".conteudo-rodape",
+      {
+        y: 80,
+        opacity: 0.6,
+      },
+      {
+        y: 0,
+        opacity: 1,
+        ease: "none",
+        scrollTrigger: {
+          trigger: secaoRodape,
+          start: "top bottom",
+          end: "top center",
+          scrub: 1.2,
+        },
+      },
+    );
+  } else {
+    secaoRodape.classList.add("footer-reveal-visivel");
+  }
+}
+
+// ===============================
+// ANO AUTOMÁTICO
+// ===============================
 const spanAno = document.getElementById("ano-atual");
+
 if (spanAno) {
   spanAno.textContent = new Date().getFullYear();
 }
