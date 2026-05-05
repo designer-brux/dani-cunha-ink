@@ -6,6 +6,17 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 gsap.registerPlugin(ScrollTrigger);
 
 // ===============================
+// CONFIGURAÇÕES DE PERFORMANCE
+// ===============================
+const mobilePerformance = window.matchMedia("(max-width: 768px)").matches;
+const hasFinePointer = window.matchMedia(
+  "(hover: hover) and (pointer: fine)",
+).matches;
+const reducedMotion = window.matchMedia(
+  "(prefers-reduced-motion: reduce)",
+).matches;
+
+// ===============================
 // CONFIGURAÇÃO DO CANVAS
 // ===============================
 const canvas = document.querySelector("#cenario3d");
@@ -23,7 +34,7 @@ const renderizador = new THREE.WebGLRenderer({
   antialias: true,
 });
 
-renderizador.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+const pixelRatioLimit = mobilePerformance ? 1 : 1.5;
 renderizador.setSize(window.innerWidth, window.innerHeight);
 renderizador.toneMapping = THREE.ACESFilmicToneMapping;
 renderizador.toneMappingExposure = 1;
@@ -178,24 +189,49 @@ carregador.load(
 // Assim o modelo não tenta continuar até o footer.
 gsap.to(grupoModelo.rotation, {
   y: Math.PI * 6,
-  x: Math.PI * 2,
+  x: Math.PI * 3,
   z: 0,
   scrollTrigger: {
     trigger: "main",
     start: "top top",
-    endTrigger: "#orcamento",
+    endTrigger: "#portfolio",
     end: "top bottom",
     scrub: 1.2,
   },
 });
 
 // ===============================
-// INTERAÇÃO COM MOUSE
+// INTERAÇÃO COM MOUSE / POINTER OTIMIZADA
 // ===============================
-window.addEventListener("mousemove", (e) => {
-  materialFundo.uniforms.uMouse.value.x = e.clientX / window.innerWidth;
-  materialFundo.uniforms.uMouse.value.y = 1 - e.clientY / window.innerHeight;
-});
+// Só ativa em dispositivos com mouse/trackpad.
+// No mobile, não existe hover real, então evitamos esse listener.
+if (hasFinePointer && !mobilePerformance && !reducedMotion) {
+  let pointerTicking = false;
+  let ultimoPointerX = window.innerWidth / 2;
+  let ultimoPointerY = window.innerHeight / 2;
+
+  function atualizarMouseShader() {
+    materialFundo.uniforms.uMouse.value.x = ultimoPointerX / window.innerWidth;
+    materialFundo.uniforms.uMouse.value.y =
+      1 - ultimoPointerY / window.innerHeight;
+
+    pointerTicking = false;
+  }
+
+  window.addEventListener(
+    "pointermove",
+    (e) => {
+      ultimoPointerX = e.clientX;
+      ultimoPointerY = e.clientY;
+
+      if (!pointerTicking) {
+        window.requestAnimationFrame(atualizarMouseShader);
+        pointerTicking = true;
+      }
+    },
+    { passive: true },
+  );
+}
 
 // ===============================
 // LOOP DE RENDERIZAÇÃO
@@ -205,7 +241,7 @@ let renderizar3D = true;
 function animar() {
   requestAnimationFrame(animar);
 
-  materialFundo.uniforms.uTime.value += 0.01;
+  materialFundo.uniforms.uTime.value += mobilePerformance ? 0.004 : 0.01;
 
   renderizador.clear();
 
@@ -226,10 +262,9 @@ animar();
 // ===============================
 // LIGAR / DESLIGAR O MODELO 3D POR SEÇÃO
 // ===============================
-// O fundo fluido continua ativo.
-// Apenas o modelo 3D é desligado antes do orçamento/footer.
+
 ScrollTrigger.create({
-  trigger: "#orcamento",
+  trigger: "#portfolio",
   start: "top bottom",
 
   onEnter: () => {
@@ -245,7 +280,9 @@ ScrollTrigger.create({
 // RESIZE
 // ===============================
 window.addEventListener("resize", () => {
-  renderizador.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+  renderizador.setPixelRatio(
+    Math.min(window.devicePixelRatio, pixelRatioLimit),
+  );
   renderizador.setSize(window.innerWidth, window.innerHeight);
 
   camara.aspect = window.innerWidth / window.innerHeight;
@@ -263,26 +300,50 @@ window.addEventListener("resize", () => {
 // CABEÇALHO INTELIGENTE
 // ===============================
 const cabecalho = document.querySelector("#meu-cabecalho");
-let ultimoScroll = 0;
+
+let ultimoScroll = window.scrollY;
+let tickingHeader = false;
+
+function atualizarCabecalho() {
+  if (!cabecalho) return;
+
+  const scrollAtual = window.scrollY;
+  const diferencaScroll = Math.abs(scrollAtual - ultimoScroll);
+
+  // Evita ficar alternando classe por movimentos mínimos do dedo/trackpad
+  if (diferencaScroll < 6) {
+    tickingHeader = false;
+    return;
+  }
+
+  if (scrollAtual <= 0) {
+    cabecalho.classList.remove("escondido");
+    ultimoScroll = scrollAtual;
+    tickingHeader = false;
+    return;
+  }
+
+  if (scrollAtual > ultimoScroll) {
+    cabecalho.classList.add("escondido");
+  } else {
+    cabecalho.classList.remove("escondido");
+  }
+
+  ultimoScroll = scrollAtual;
+  tickingHeader = false;
+}
 
 if (cabecalho) {
-  window.addEventListener("scroll", () => {
-    const scrollAtual = window.scrollY;
-
-    if (scrollAtual <= 0) {
-      cabecalho.classList.remove("escondido");
-      ultimoScroll = scrollAtual;
-      return;
-    }
-
-    if (scrollAtual > ultimoScroll) {
-      cabecalho.classList.add("escondido");
-    } else {
-      cabecalho.classList.remove("escondido");
-    }
-
-    ultimoScroll = scrollAtual;
-  });
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (!tickingHeader) {
+        window.requestAnimationFrame(atualizarCabecalho);
+        tickingHeader = true;
+      }
+    },
+    { passive: true },
+  );
 }
 
 // ===============================
@@ -311,7 +372,7 @@ if (btnMenu && menuNavegacao) {
 // ===============================
 const elementosAnimar = document.querySelectorAll(".animar-scroll");
 
-if (elementosAnimar.length > 0) {
+if (!reducedMotion && elementosAnimar.length > 0) {
   elementosAnimar.forEach((elemento) => {
     gsap.fromTo(
       elemento,
@@ -364,28 +425,58 @@ const janelaLightbox = document.querySelector("#janela-lightbox");
 const imgAmpliada = document.querySelector("#img-ampliada");
 
 if (pista && janelaLightbox && imgAmpliada) {
-  const imagensOriginais = Array.from(pista.children);
+  const isMobileCarousel = window.innerWidth <= 768;
 
-  imagensOriginais.forEach((img) => {
-    const clone = img.cloneNode(true);
-    pista.appendChild(clone);
-  });
+  // No desktop, clonamos as imagens para manter o efeito infinito.
+  // No mobile, não clonamos para evitar duplicar imagens e pesar o DOM.
+  if (!isMobileCarousel && !pista.dataset.clonado) {
+    const imagensOriginais = Array.from(pista.children);
 
-  const todasAsImagens = document.querySelectorAll(".img-portfolio");
+    imagensOriginais.forEach((img) => {
+      const clone = img.cloneNode(true);
+      clone.setAttribute("aria-hidden", "true");
+      pista.appendChild(clone);
+    });
+
+    pista.dataset.clonado = "true";
+  }
+
+  const todasAsImagens = pista.querySelectorAll(
+    ".img-portfolio:not([aria-hidden='true'])",
+  );
 
   todasAsImagens.forEach((img) => {
     img.addEventListener("click", () => {
       imgAmpliada.src = img.src;
+      imgAmpliada.alt = img.alt || "Tattoo ampliada";
       janelaLightbox.classList.add("ativo");
+      document.body.style.overflow = "hidden";
     });
   });
 
-  janelaLightbox.addEventListener("click", () => {
+  function fecharLightbox() {
     janelaLightbox.classList.remove("ativo");
+    document.body.style.overflow = "";
 
     setTimeout(() => {
       imgAmpliada.src = "";
+      imgAmpliada.alt = "Tattoo ampliada";
     }, 400);
+  }
+
+  janelaLightbox.addEventListener("click", (e) => {
+    if (
+      e.target === janelaLightbox ||
+      e.target.classList.contains("fechar-lightbox")
+    ) {
+      fecharLightbox();
+    }
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && janelaLightbox.classList.contains("ativo")) {
+      fecharLightbox();
+    }
   });
 }
 
@@ -394,7 +485,7 @@ if (pista && janelaLightbox && imgAmpliada) {
 // ===============================
 const textoMissao = document.querySelector("#texto-missao");
 
-if (textoMissao) {
+if (!reducedMotion && textoMissao) {
   const palavras = textoMissao.innerText.split(" ");
 
   textoMissao.innerHTML = "";
@@ -423,7 +514,7 @@ if (textoMissao) {
 // ===============================
 const secaoEstudioNova = document.querySelector(".secao-estudio-nova");
 
-if (secaoEstudioNova && window.innerWidth > 768) {
+if (!reducedMotion && secaoEstudioNova && window.innerWidth > 768) {
   // Título de abertura: aparece vindo de baixo
   gsap.from(".estudio-titulo-grande", {
     yPercent: 35,
@@ -569,7 +660,7 @@ if (secaoEstudioNova && window.innerWidth > 768) {
 }
 
 // ===============================
-// FORMULÁRIO
+// FORMULÁRIO OTIMIZADO
 // ===============================
 const form = document.querySelector("#form-tatuagem");
 const inputTelefone = document.querySelector("#telefone");
@@ -577,80 +668,103 @@ const inputImagem = document.querySelector("#imagem");
 const nomeArquivoSpan = document.querySelector("#nome-arquivo");
 const mensagemSucesso = document.querySelector("#mensagem-sucesso");
 
+function aplicarMascaraTelefone(valor) {
+  let numeros = valor.replace(/\D/g, "");
+  numeros = numeros.slice(0, 11);
+
+  if (numeros.length <= 2) {
+    return numeros;
+  }
+
+  if (numeros.length <= 7) {
+    return `(${numeros.slice(0, 2)}) ${numeros.slice(2)}`;
+  }
+
+  return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 7)}-${numeros.slice(7)}`;
+}
+
+function mostrarErroCampo(campo) {
+  campo.classList.add("erro-validacao");
+}
+
+function removerErroCampo(campo) {
+  campo.classList.remove("erro-validacao");
+}
+
+function validarCampo(campo) {
+  if (!campo.checkValidity()) {
+    mostrarErroCampo(campo);
+    return false;
+  }
+
+  removerErroCampo(campo);
+  return true;
+}
+
 if (form) {
-  if (inputTelefone) {
-    inputTelefone.addEventListener("input", function (e) {
-      let valor = e.target.value;
-
-      valor = valor.replace(/\D/g, "");
-      valor = valor.slice(0, 11);
-
-      if (valor.length > 2) {
-        valor = "(" + valor.substring(0, 2) + ") " + valor.substring(2);
-      }
-
-      if (valor.length > 10) {
-        valor = valor.substring(0, 10) + "-" + valor.substring(10, 15);
-      }
-
-      e.target.value = valor;
-    });
-  }
-
-  if (inputImagem && nomeArquivoSpan) {
-    inputImagem.addEventListener("change", function (e) {
-      if (e.target.files.length > 0) {
-        nomeArquivoSpan.textContent = "✔️ Ficheiro: " + e.target.files[0].name;
-        nomeArquivoSpan.style.color = "#fff";
-      } else {
-        nomeArquivoSpan.textContent = "+ Anexar Referência";
-        nomeArquivoSpan.style.color = "#888";
-      }
-    });
-  }
-
   const camposObrigatorios = form.querySelectorAll("[required]");
 
-  camposObrigatorios.forEach((campo) => {
-    campo.addEventListener("blur", () => {
-      if (!campo.checkValidity()) {
-        campo.classList.add("erro-validacao");
+  // Máscara do telefone
+  if (inputTelefone) {
+    inputTelefone.addEventListener("input", (e) => {
+      e.target.value = aplicarMascaraTelefone(e.target.value);
+    });
+  }
+
+  // Nome do arquivo anexado
+  if (inputImagem && nomeArquivoSpan) {
+    inputImagem.addEventListener("change", (e) => {
+      const arquivo = e.target.files && e.target.files[0];
+
+      if (arquivo) {
+        nomeArquivoSpan.textContent = `✔️ Ficheiro: ${arquivo.name}`;
+        nomeArquivoSpan.style.color = "#f2eee8";
       } else {
-        campo.classList.remove("erro-validacao");
+        nomeArquivoSpan.textContent = "+ Anexar Referência";
+        nomeArquivoSpan.style.color = "#b8b0a8";
       }
     });
+  }
 
-    campo.addEventListener("input", () => {
-      if (campo.classList.contains("erro-validacao") && campo.checkValidity()) {
-        campo.classList.remove("erro-validacao");
-      }
+  // Valida quando o usuário sai do campo
+  camposObrigatorios.forEach((campo) => {
+    campo.addEventListener("blur", () => {
+      validarCampo(campo);
     });
   });
 
-  form.addEventListener("submit", function (e) {
+  // Remove erro enquanto o usuário corrige o campo
+  form.addEventListener("input", (e) => {
+    const campo = e.target;
+
+    if (
+      campo instanceof HTMLInputElement ||
+      campo instanceof HTMLTextAreaElement ||
+      campo instanceof HTMLSelectElement
+    ) {
+      if (campo.classList.contains("erro-validacao") && campo.checkValidity()) {
+        removerErroCampo(campo);
+      }
+    }
+  });
+
+  // Validação final no envio
+  form.addEventListener("submit", (e) => {
     e.preventDefault();
 
     let temErro = false;
-    const campos = form.querySelectorAll("[required]");
 
-    campos.forEach((campo) => {
-      if (!campo.checkValidity()) {
-        campo.classList.add("erro-validacao");
+    camposObrigatorios.forEach((campo) => {
+      const campoValido = validarCampo(campo);
+
+      if (!campoValido) {
         temErro = true;
-      } else {
-        campo.classList.remove("erro-validacao");
       }
     });
 
     if (!temErro && mensagemSucesso) {
       form.classList.add("escondido");
       mensagemSucesso.classList.remove("escondido");
-    }
-  });
-
-  form.addEventListener("input", function (e) {
-    if (e.target.classList.contains("erro-validacao")) {
-      e.target.classList.remove("erro-validacao");
     }
   });
 }
@@ -693,10 +807,7 @@ if (botaoWhatsapp) {
   const linkDesktop = `https://wa.me/${numeroWhatsapp}?text=${mensagemWhatsapp}`;
   const linkMobile = `whatsapp://send?phone=${numeroWhatsapp}&text=${mensagemWhatsapp}`;
 
-  const isMobile =
-    /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(
-      navigator.userAgent,
-    );
+  const isMobile = mobilePerformance;
 
   botaoWhatsapp.setAttribute("href", isMobile ? linkMobile : linkDesktop);
 

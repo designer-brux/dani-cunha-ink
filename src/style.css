@@ -4,12 +4,15 @@
 
 body {
   margin: 0;
-  background-color: #0c0c0c;
   color: #f2eee8;
   font-family: "Darker Grotesque", sans-serif;
   font-weight: 400;
   font-size: 16px;
   overflow-x: hidden;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(90, 0, 24, 0.55), transparent 34%),
+    radial-gradient(circle at 75% 30%, rgba(15, 0, 36, 0.45), transparent 38%),
+    linear-gradient(135deg, #050505 0%, #120006 45%, #050505 100%);
 }
 
 /* O palco 3D*/
@@ -575,7 +578,7 @@ body {
   object-fit: cover;
   border-radius: 8px;
   filter: grayscale(35%);
-  will-change: transform, opacity, clip-path;
+  will-change: transform;
 }
 
 .estudio-img-1 {
@@ -1339,9 +1342,36 @@ select.input-linha:valid {
     text-align: center;
   }
 
+  /* --- PORTFÓLIO --- */
+  .carrossel-infinito {
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: normal;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .carrossel-infinito::-webkit-scrollbar {
+    display: none;
+  }
+
+  .carrossel-pista {
+    animation: none;
+    display: flex;
+    width: max-content;
+    padding: 0 20px;
+  }
+
   .img-portfolio {
-    height: 350px; /* Imagens mais pequenas no mobile */
+    height: 320px;
+    width: auto;
+    flex: 0 0 auto;
     margin: 0 10px;
+    filter: grayscale(40%);
+  }
+
+  .img-portfolio:hover {
+    transform: none;
   }
 
   .fechar-lightbox {
@@ -1388,6 +1418,7 @@ select.input-linha:valid {
     left: auto;
     right: auto;
     bottom: auto;
+    will-change: auto;
   }
 
   .estudio-texto-central {
@@ -1407,6 +1438,7 @@ select.input-linha:valid {
 
   .estudio-coluna-imagem {
     min-height: 480px;
+    will-change: auto;
   }
 
   .estudio-coluna-texto {
